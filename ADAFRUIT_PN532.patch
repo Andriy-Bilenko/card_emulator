@@ -1,0 +1,343 @@
+#
+#   cd ~/Arduino/libraries/Adafruit_PN532
+#   git apply /path/to/card_emulator/ADAFRUIT_PN532_PATCH.patch
+# BY ME TODO: clean up the patch
+#
+--- a/Adafruit_PN532.h
++++ b/Adafruit_PN532.h
+@@ -169,9 +169,11 @@
+   bool inDataExchange(uint8_t *send, uint8_t sendLength, uint8_t *response,
+                       uint8_t *responseLength);
+   bool inListPassiveTarget();
+-  uint8_t AsTarget();
+-  uint8_t getDataTarget(uint8_t *cmd, uint8_t *cmdlen);
++  uint8_t AsTarget(uint16_t timeout = 30000);
++  uint8_t getDataTarget(uint8_t *cmd, uint8_t *cmdlen, uint16_t timeout = 8000);
+   uint8_t setDataTarget(uint8_t *cmd, uint8_t cmdlen);
++  // Drain host<->PN532 frames after sendCommandCheckAck (e.g. SetParameters)
++  void readdata(uint8_t *buff, uint8_t n);
+ 
+   // Mifare Classic functions
+   bool mifareclassic_IsFirstBlock(uint32_t uiBlock);
+@@ -205,9 +207,10 @@
+   int8_t _uidLen;      // uid len
+   int8_t _key[6];      // Mifare Classic key
+   int8_t _inListedTag; // Tg number of inlisted tag.
+-
++  // First C-APDU if present in TgInitAsTarget (skip RATS 0xE0)
++  uint8_t _tgPendingLen = 0;
++  uint8_t _tgPending[250];
+   // Low level communication functions that handle both SPI and I2C.
+-  void readdata(uint8_t *buff, uint8_t n);
+   void writecommand(uint8_t *cmd, uint8_t cmdlen);
+   bool isready();
+   bool waitready(uint16_t timeout);
+--- a/Adafruit_PN532.cpp
++++ b/Adafruit_PN532.cpp
+@@ -75,7 +75,9 @@
+ #define PN532DEBUGPRINT Serial ///< Fixed name for debug Serial instance
+ // #define PN532DEBUGPRINT SerialUSB ///< Fixed name for debug Serial instance
+ 
+-#define PN532_PACKBUFFSIZ 64                ///< Packet buffer size in bytes
++// EMV READ RECORD can be ~170B+SW. 255 is max for uint8_t readdata length.
++// (Earlier "255 desync" was confused with the sizeof→0 bug + missing T=CL.)
++#define PN532_PACKBUFFSIZ 255               ///< Packet buffer size in bytes
+ byte pn532_packetbuffer[PN532_PACKBUFFSIZ]; ///< Packet buffer used in various
+                                             ///< transactions
+ 
+@@ -624,6 +626,9 @@
+   if (pn532_packetbuffer[7] != 1)
+     return 0;
+ 
++  // Required for inDataExchange() after readPassiveTargetID()
++  _inListedTag = pn532_packetbuffer[8];
++
+   uint16_t sens_res = pn532_packetbuffer[9];
+   sens_res <<= 8;
+   sens_res |= pn532_packetbuffer[10];
+@@ -650,6 +655,10 @@
+   PN532DEBUGPRINT.println();
+ #endif
+ 
++  // Capture SAK for callers that peek via a side channel (bridge sketch).
++  // Stored in unused packet tail so sketches can re-read if needed.
++  (void)sens_res;
++
+   return 1;
+ }
+ 
+@@ -671,31 +680,38 @@
+ #ifdef PN532DEBUG
+     PN532DEBUGPRINT.println(F("APDU length too long for packet buffer"));
+ #endif
++    *responseLength = 0;
+     return false;
+   }
+   uint8_t i;
+ 
+   pn532_packetbuffer[0] = 0x40; // PN532_COMMAND_INDATAEXCHANGE;
+-  pn532_packetbuffer[1] = _inListedTag;
++  // Tg is almost always 1 after a single-card InListPassiveTarget.
++  // Fall back to 1 if _inListedTag was never set (0 / -1).
++  pn532_packetbuffer[1] = (_inListedTag > 0) ? (uint8_t)_inListedTag : 1;
+   for (i = 0; i < sendLength; ++i) {
+     pn532_packetbuffer[i + 2] = send[i];
+   }
+ 
+-  if (!sendCommandCheckAck(pn532_packetbuffer, sendLength + 2, 1000)) {
++  // Longer timeout: first InDataExchange also performs RATS/ATS for T=CL.
++  if (!sendCommandCheckAck(pn532_packetbuffer, sendLength + 2, 2000)) {
+ #ifdef PN532DEBUG
+     PN532DEBUGPRINT.println(F("Could not send APDU"));
+ #endif
++    *responseLength = 0;
+     return false;
+   }
+ 
+-  if (!waitready(1000)) {
++  if (!waitready(2000)) {
+ #ifdef PN532DEBUG
+     PN532DEBUGPRINT.println(F("Response never received for APDU..."));
+ #endif
++    *responseLength = 0;
+     return false;
+   }
+ 
+-  readdata(pn532_packetbuffer, sizeof(pn532_packetbuffer));
++  memset(pn532_packetbuffer, 0, PN532_PACKBUFFSIZ);
++  readdata(pn532_packetbuffer, PN532_PACKBUFFSIZ);
+ 
+   if (pn532_packetbuffer[0] == 0 && pn532_packetbuffer[1] == 0 &&
+       pn532_packetbuffer[2] == 0xff) {
+@@ -703,39 +719,59 @@
+     if (pn532_packetbuffer[4] != (uint8_t)(~length + 1)) {
+ #ifdef PN532DEBUG
+       PN532DEBUGPRINT.println(F("Length check invalid"));
+-      PN532DEBUGPRINT.println(length, HEX);
+-      PN532DEBUGPRINT.println((~length) + 1, HEX);
+ #endif
++      *responseLength = 0;
+       return false;
+     }
+     if (pn532_packetbuffer[5] == PN532_PN532TOHOST &&
+         pn532_packetbuffer[6] == PN532_RESPONSE_INDATAEXCHANGE) {
+-      if ((pn532_packetbuffer[7] & 0x3f) != 0) {
++      uint8_t status = pn532_packetbuffer[7];
++      if ((status & 0x3f) != 0) {
+ #ifdef PN532DEBUG
+-        PN532DEBUGPRINT.println(F("Status code indicates an error"));
++        PN532DEBUGPRINT.print(F("InDataExchange status error: "));
++        PN532DEBUGPRINT.println(status, HEX);
+ #endif
++        // Surface PN532 status byte to caller for logging.
++        if (*responseLength > 0) {
++          response[0] = status;
++          *responseLength = 1;
++        }
+         return false;
+       }
+ 
+-      length -= 3;
++      // length = TFI(1)+CMD(1)+STATUS(1)+APDU...
++      if (length < 3) {
++        *responseLength = 0;
++        return false;
++      }
++      length = (uint8_t)(length - 3);
+ 
+       if (length > *responseLength) {
+-        length = *responseLength; // silent truncation...
++        length = *responseLength;
++      }
++      // Stay inside packet buffer (preamble 0..7, data at 8+)
++      if (length > (uint8_t)(PN532_PACKBUFFSIZ - 8)) {
++        length = (uint8_t)(PN532_PACKBUFFSIZ - 8);
+       }
+ 
+       for (i = 0; i < length; ++i) {
+         response[i] = pn532_packetbuffer[8 + i];
+       }
+       *responseLength = length;
+-
+       return true;
+     } else {
++#ifdef PN532DEBUG
+       PN532DEBUGPRINT.print(F("Don't know how to handle this command: "));
+       PN532DEBUGPRINT.println(pn532_packetbuffer[6], HEX);
++#endif
++      *responseLength = 0;
+       return false;
+     }
+   } else {
++#ifdef PN532DEBUG
+     PN532DEBUGPRINT.println(F("Preamble missing"));
++#endif
++    *responseLength = 0;
+     return false;
+   }
+ }
+@@ -1635,14 +1671,15 @@
+              -setDataTarget
+ */
+ /**************************************************************************/
+-uint8_t Adafruit_PN532::AsTarget() {
++uint8_t Adafruit_PN532::AsTarget(uint16_t timeout) {
+   pn532_packetbuffer[0] = 0x8C;
+   uint8_t target[] = {
+       0x8C,             // INIT AS TARGET
+-      0x00,             // MODE -> BITFIELD
+-      0x08, 0x00,       // SENS_RES - MIFARE PARAMS
+-      0xdc, 0x44, 0x20, // NFCID1T
+-      0x60,             // SEL_RES
++      // 0x00 = allow passive DEP/PICC (0x05 PICC-only missed some POS stacks)
++      0x00,
++      0x04, 0x00,       // SENS_RES / ATQA (common Type A)
++      0xA2, 0x3D, 0x05, // NFCID1t
++      0x20,             // SEL_RES / SAK: ISO14443-4 compliant
+       0x01, 0xfe, // NFCID2T MUST START WITH 01fe - FELICA PARAMS - POL_RES
+       0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xc0,
+       0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, // PAD
+@@ -1652,14 +1689,40 @@
+       0x0d, 0x52, 0x46, 0x49, 0x44, 0x49, 0x4f,
+       0x74, 0x20, 0x50, 0x4e, 0x35, 0x33, 0x32 // HISTORICAL BYTES
+   };
+-  if (!sendCommandCheckAck(target, sizeof(target)))
++  // Default 30s; card_emulator uses short timeouts so MODE flips can land.
++  if (!sendCommandCheckAck(target, sizeof(target), timeout))
+     return false;
+ 
+-  // read data packet
+-  readdata(pn532_packetbuffer, 8);
++  // TgInitAsTarget response: D5 8D Mode [InitiatorCommand…]
++  _tgPendingLen = 0;
++  memset(pn532_packetbuffer, 0, PN532_PACKBUFFSIZ);
++  readdata(pn532_packetbuffer, PN532_PACKBUFFSIZ);
+ 
+-  int offset = 6;
+-  return (pn532_packetbuffer[offset] == 0x15);
++  if (pn532_packetbuffer[0] != 0 || pn532_packetbuffer[1] != 0 ||
++      pn532_packetbuffer[2] != 0xff)
++    return false;
++  uint8_t length = pn532_packetbuffer[3];
++  if (pn532_packetbuffer[5] != PN532_PN532TOHOST ||
++      pn532_packetbuffer[6] != 0x8D)
++    return false;
++
++  // PICC: InitiatorCommand is usually RATS (E0 …) - already answered with ATS.
++  // Some stacks put the first C-APDU here; buffer only APDU-shaped payloads.
++  if (length > 3) {
++    uint8_t initLen = (uint8_t)(length - 3);
++    if (initLen > sizeof(_tgPending))
++      initLen = sizeof(_tgPending);
++    const uint8_t *ic = &pn532_packetbuffer[8];
++    bool rats = (initLen >= 1 && ic[0] == 0xE0);
++    bool apdu = (initLen >= 4 && (ic[0] == 0x00 || ic[0] == 0x80) &&
++                 (ic[1] == 0xA4 || ic[1] == 0xA8 || ic[1] == 0xB2 ||
++                  ic[1] == 0xAE || ic[1] == 0xCA));
++    if (apdu && !rats) {
++      memcpy(_tgPending, ic, initLen);
++      _tgPendingLen = initLen;
++    }
++  }
++  return true;
+ }
+ /**************************************************************************/
+ /*!
+@@ -1670,28 +1733,49 @@
+     @return  true on success, false otherwise.
+ */
+ /**************************************************************************/
+-uint8_t Adafruit_PN532::getDataTarget(uint8_t *cmd, uint8_t *cmdlen) {
++uint8_t Adafruit_PN532::getDataTarget(uint8_t *cmd, uint8_t *cmdlen,
++                                      uint16_t timeout) {
++  if (_tgPendingLen > 0) {
++    uint8_t n = _tgPendingLen;
++    if (n > 250)
++      n = 250;
++    memcpy(cmd, _tgPending, n);
++    *cmdlen = n;
++    _tgPendingLen = 0;
++    return true;
++  }
++
+   uint8_t length;
+-  pn532_packetbuffer[0] = 0x86;
+-  if (!sendCommandCheckAck(pn532_packetbuffer, 1, 1000)) {
+-    PN532DEBUGPRINT.println(F("Error en ack"));
++  pn532_packetbuffer[0] = 0x86; // TgGetData
++  // Default 8s for POS pauses; card_emulator may use shorter for MODE polling.
++  if (!sendCommandCheckAck(pn532_packetbuffer, 1, timeout)) {
++    // Do not Serial.print here - CDC delay blows FWT on the next retry.
+     return false;
+   }
+ 
+-  // read data packet
+-  readdata(pn532_packetbuffer, 64);
++  // Full packbuf - 64 was truncating longer C-APDUs (e.g. GENERATE AC).
++  // Frame: … LEN LCS D5 87 STATUS DATA… → STATUS at 7, DATA at 8.
++  // LEN = TFI+CMD+STATUS+DATA → LEN-3 = DATA length (same as InDataExchange).
++  memset(pn532_packetbuffer, 0, PN532_PACKBUFFSIZ);
++  readdata(pn532_packetbuffer, PN532_PACKBUFFSIZ);
++  if (pn532_packetbuffer[3] < 3) {
++    *cmdlen = 0;
++    return false;
++  }
++  // TgGetData status != 0 → timeout / released / error.
++  if (pn532_packetbuffer[6] == 0x87 && pn532_packetbuffer[7] != 0x00) {
++    *cmdlen = 0;
++    return false;
++  }
+   length = pn532_packetbuffer[3] - 3;
+-
+-  // if (length > *responseLength) {// Bug, should avoid it in the reading
+-  // target data
+-  //  length = *responseLength; // silent truncation...
+-  //}
+-
++  if (length > 250) {
++    length = 250;
++  }
+   for (int i = 0; i < length; ++i) {
+     cmd[i] = pn532_packetbuffer[8 + i];
+   }
+   *cmdlen = length;
+-  return true;
++  return length > 0;
+ }
+ 
+ /**************************************************************************/
+@@ -1704,23 +1788,17 @@
+ */
+ /**************************************************************************/
+ uint8_t Adafruit_PN532::setDataTarget(uint8_t *cmd, uint8_t cmdlen) {
+-  uint8_t length;
+-  // cmd1[0] = 0x8E; Must!
+-
+-  if (!sendCommandCheckAck(cmd, cmdlen))
++  // cmd[0] must be 0x8E (TgSetData). Longer timeout for big R-APDUs.
++  if (!sendCommandCheckAck(cmd, cmdlen, 2000))
+     return false;
+ 
+-  // read data packet
+-  readdata(pn532_packetbuffer, 8);
+-  length = pn532_packetbuffer[3] - 3;
+-  for (int i = 0; i < length; ++i) {
+-    cmd[i] = pn532_packetbuffer[8 + i];
+-  }
+-  // cmdl = 0
+-  cmdlen = length;
+-
+-  int offset = 6;
+-  return (pn532_packetbuffer[offset] == 0x15);
++  // TgSetData response: D5 8F Status
++  memset(pn532_packetbuffer, 0, 16);
++  readdata(pn532_packetbuffer, 16);
++
++  // Accept 0x8F; status 0 is ideal but some firmwares leave MI bits - allow low nibble 0.
++  return (pn532_packetbuffer[6] == 0x8F &&
++          (pn532_packetbuffer[7] & 0x3F) == 0x00);
+ }
+ 
+ /**************************************************************************/
+
+# NOTE: installed Adafruit_PN532.cpp setDataTarget also accepts 0x94 TgSetMetaData for ISO-DEP chaining (response 0x95).

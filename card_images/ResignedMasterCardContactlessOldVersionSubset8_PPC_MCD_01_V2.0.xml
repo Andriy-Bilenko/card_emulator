@@ -1,0 +1,517 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  EMU ANNOTATION research only.
+  REVERT: copy .bak_before_emu_marks over this file.
+  STRIP: delete lines matching EMU:USED|EMU:PARTIAL|EMU:UNUSED|EMU:META
+  Legend: USED=parse/RF path; PARTIAL=stored incomplete; UNUSED=ignored; META=bookkeeping
+-->
+<!-- EMU:USED root must be CardImage -->
+<CardImage>
+    <!-- EMU:UNUSED documentation only, never read -->
+    <FileProperties>
+        <!-- EMU:UNUSED lab filename metadata -->
+        <File>PPC MCD 01 V2.0.xml</File>
+        <!-- EMU:UNUSED metadata -->
+        <DateTime>14/10/2010 15.06.00</DateTime>
+        <!-- EMU:UNUSED metadata -->
+        <CreatedBy name="Collis EMV PVT Full" version="2.9.5"/>
+        <!-- EMU:UNUSED metadata -->
+        <Author>Ricardo M.</Author>
+    <!-- EMU:UNUSED documentation only, never read -->
+    </FileProperties>
+    <!-- EMU:UNUSED Blocked/GuardTime/Protocol/ATR unused; Contactless Type=A not parsed -->
+    <CardProperties>
+        <!-- EMU:UNUSED blocked flags not enforced -->
+        <Blocked>0</Blocked>
+        <!-- EMU:UNUSED not read -->
+        <GuardTime>1</GuardTime>
+        <!-- EMU:UNUSED not read -->
+        <Protocol>0</Protocol>
+        <!-- EMU:UNUSED contact ATR, no contact interface -->
+        <ATR>
+            <!-- EMU:UNUSED contact ATR, no contact interface -->
+            <ColdATR/>
+            <!-- EMU:UNUSED contact ATR, no contact interface -->
+            <WarmATR/>
+        <!-- EMU:UNUSED contact ATR, no contact interface -->
+        </ATR>
+        <!-- EMU:UNUSED Type=A assumed; element not parsed -->
+        <Contactless Type="A"/>
+    <!-- EMU:UNUSED Blocked/GuardTime/Protocol/ATR unused; Contactless Type=A not parsed -->
+    </CardProperties>
+    <!-- EMU:PARTIAL empty PSE: synthesizes PSE FCI flag, no PSE records -->
+    <PSE/>
+    <!-- EMU:USED PPSE FCI built for SELECT PPSE -->
+    <PPSE>
+        <!-- EMU:USED PPSE DF name / tag 84 in FCI -->
+        <DirectoryIdentifier>32 50 41 59 2E 53 59 53 2E 44 44 46 30 31</DirectoryIdentifier>
+        <!-- EMU:USED FCITemplate / RecordTemplate container -->
+        <RecordTemplates>
+            <!-- EMU:USED builds PPSE or AID FCI from Tag skeleton -->
+            <FCITemplate>
+                <!-- EMU:USED TLV nesting -->
+                <Template TemplateTag ="6F">
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>84</Tag>
+                    <!-- EMU:USED TLV nesting -->
+                    <Template TemplateTag ="A5">
+                        <!-- EMU:USED TLV nesting -->
+                        <Template TemplateTag ="BF 0C">
+                            <!-- EMU:USED TLV nesting -->
+                            <Template TemplateTag ="61">
+                                <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                                <Tag>4F</Tag>
+                                <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                                <Tag>87</Tag>
+                            <!-- EMU:USED closes template -->
+                            </Template>
+                        <!-- EMU:USED closes template -->
+                        </Template>
+                    <!-- EMU:USED closes template -->
+                    </Template>
+                <!-- EMU:USED closes template -->
+                </Template>
+            <!-- EMU:USED builds PPSE or AID FCI from Tag skeleton -->
+            </FCITemplate>
+        <!-- EMU:USED FCITemplate / RecordTemplate container -->
+        </RecordTemplates>
+        <!-- EMU:UNUSED empty placeholder; FCI comes from FCITemplate+data -->
+        <FCI/>
+    <!-- EMU:USED closes PPSE -->
+    </PPSE>
+    <!-- EMU:USED Application required; Type attr ignored -->
+    <Application Type="MCHIP4 PayPass">
+        <!-- EMU:UNUSED blocked flags not enforced -->
+        <Blocked>00</Blocked>
+        <!-- EMU:USED SELECT AID + FCI 84 -->
+        <AID>A0 00 00 00 04 10 10</AID>
+        <!-- EMU:USED GPO AFL -->
+        <AFL>08 01 01 00 10 01 01 01 18 01 02 00 20 01 02 00</AFL>
+        <!-- EMU:UNUSED VLP AFL unused -->
+        <AFLVLP/>
+        <!-- EMU:UNUSED empty placeholder; FCI comes from FCITemplate+data -->
+        <FCI/>
+        <!-- EMU:UNUSED log records not implemented -->
+        <LogRecord Data="" RecordNumber="" ShortFileIdentifier=""/>
+        <!-- EMU:USED crypto container -->
+        <Keys Recalculate="00">
+            <!-- EMU:USED ICC RSA d for CDA/DDA -->
+            <IccPrivateKey>91 3D 05 A4 B7 CA 5A 7A 3D CD 65 E1 C7 A5 50 7A A4 43 3A A3 63 DA 33 FB 33 4F 18 3A 69 2D 2D 7F C2 76 D7 83 C0 BE 56 F1 00 F3 57 09 FE 2F 94 74 9A BD 02 27 6B 57 AB 3E D7 B2 7E 1E 85 7D 86 27 B5 05 C7 FC B2 A0 59 E8 5A 77 A0 20 3C F4 1D A9 52 19 4F A9 7D AF 77 49 6B FF 51 C3 99 4C 4C EB D7 97 D6 A3 98 C1 13 B0 29 86 4F 2F 3B ED 8E 13 74 5B B9 84 C6 43 8C CC 0E 1E 18 20 F0 C7 B2 C5 7A F7 77 A2 99 13 27 13</IccPrivateKey>
+            <!-- EMU:USED tag 9F46 -->
+            <IccPublicKeyCertificate>1D 34 D8 D8 A5 56 C5 97 8D 6F A7 88 50 B3 98 63 04 14 48 EF EC 21 69 1F 96 01 4F 0C EE F5 81 94 4A 17 11 E8 EC 93 CC 11 A5 BD 5B 42 47 CF BD 7F 3F E0 75 F1 D1 16 EE C3 7C B9 07 30 A8 65 D6 41 D9 3D 51 E5 5B 11 00 A3 BC 3A 60 00 9A 12 1A F0 B2 13 3B 81 0B 49 39 41 60 F1 76 53 68 D5 D7 2F D0 79 41 9E D7 74 88 D0 58 70 16 99 90 03 AB 81 62 2C 8B EB 67 D8 C3 2D A3 F7 71 0E 95 65 05 F0 94 F2 50 E6 C5 89 37 6C 58 B6 7E 9F C0 68 C8 94 AC 65 F9 3D 83 73 B3 03 E7 2A EB CA 29 A1 0B A3 59 EC D1 53 AE 34 D8 2A CC EC 98 92 69 2D D4 21</IccPublicKeyCertificate>
+            <!-- EMU:USED tag 9F47 + e -->
+            <IccPublicKeyExponent>03</IccPublicKeyExponent>
+            <!-- EMU:USED tag 9F48 -->
+            <IccPublicKeyRemainder>31 CD</IccPublicKeyRemainder>
+            <!-- EMU:USED ICC RSA n -->
+            <IccPublicModulus>D9 DB 88 77 13 AF 87 B7 5C B4 18 D2 AB 77 F8 B7 F6 64 D7 F5 15 C7 4D F8 CC F6 A4 57 9D C3 C4 3F A3 B2 43 45 A1 1D 82 69 81 6D 02 8E FD 47 5E AE E8 1B 83 3B 21 03 80 DE 43 8B BD 2D C8 3C 49 3B 8F 88 AB FC E5 A0 3A 30 AF 8E 16 7B C4 99 22 BC A0 17 24 47 FC 18 76 2D FF EB 75 96 A7 F5 99 BC 2A C1 AE 0D CA 80 BE 60 79 46 7C 33 1C 98 B4 EB B1 5B B4 4A FE 4A D8 34 06 71 A3 FB F8 4A D3 DF 9A F5 1D 7B E9 8B 31 CD</IccPublicModulus>
+            <!-- EMU:UNUSED no offline PIN encipher/VERIFY -->
+            <IccPINEnciphermentPrivateKey/>
+            <!-- EMU:UNUSED no offline PIN encipher/VERIFY -->
+            <IccPINEnciphermentPublicKeyCertificate/>
+            <!-- EMU:UNUSED no offline PIN encipher/VERIFY -->
+            <IccPINEnciphermentPublicKeyExponent/>
+            <!-- EMU:UNUSED no offline PIN encipher/VERIFY -->
+            <IccPINEnciphermentPublicKeyRemainder/>
+            <!-- EMU:UNUSED no offline PIN encipher/VERIFY -->
+            <IccPINEnciphermentModulus/>
+            <!-- EMU:UNUSED not on RF path (resign offline only) -->
+            <IssuerPrivateKey>80 30 88 49 F0 21 B0 72 10 94 3E 45 AF 66 DE DB C2 FB 75 36 AF 1F 39 ED 6B E6 C0 7E 4A DA 62 99 20 C9 42 96 C3 63 5F 31 E8 7A F5 B6 3D 7E 19 0F 7F 86 7D 07 2A AB B9 B8 6B 89 09 FE 58 16 0E 88 EC D5 D8 2E AE 3E DB 77 7D F6 B1 8D D1 D2 26 E4 E8 76 4E 47 83 39 9D 4A B9 9A 78 7A 3D B5 41 E4 B9 58 24 F4 6F 31 FA 80 06 C1 1B 0C A7 64 F2 E8 98 F4 F0 3D 56 E3 73 CB 60 1F A5 21 50 66 0C 00 ED 4B 43 CC EE 79 28 85 D8 5B BA 43 49 1A 28 C8 AB 58 C5 82 C5 1B 22 96 F2 CD 69 CC F1 7A F1 E6 22 9B 15 BA 60 09 85 20 5D E2 37 76 03 8E EE 33</IssuerPrivateKey>
+            <!-- EMU:USED tag 90 -->
+            <IssuerPublicKeyCertificate>98 1B 6B B6 BB DC 75 70 C8 8F 79 3C 7F AF BF AB 5F 31 2C 17 8F 81 2D EC D6 C5 62 26 F5 81 4D 84 EA D9 D5 F1 90 B4 4D 20 7E C9 33 58 CF 3F C9 4C FB C2 DE 8A 89 C7 F7 4B 03 84 A8 2C 51 24 BC CB 56 09 A9 E4 28 7C 63 C7 6E 6D C1 7D 72 CD A8 E3 FE 00 A9 B8 FC A6 C3 6D A4 DE E5 EF 28 3A BF 53 1E 35 98 A9 4B 91 F8 2D 87 68 D9 98 D7 63 30 66 83 5B 5D 8E FB EE 38 FF 37 2A 00 CA EF 94 29 A9 4E 65 29 57 B4 62 4A FC 79 93 21 9D 47 E2 47 B6 74 30 88 6D C6 93 8E 0E 32 59 0C 10 3B EA C9 E2 54 79 7A 23 E7 8A D6 2D 51 B1 6D 40 EE F8 5B 54</IssuerPublicKeyCertificate>
+            <!-- EMU:USED tag 9F32 -->
+            <IssuerPublicKeyExponent>03</IssuerPublicKeyExponent>
+            <!-- EMU:USED tag 92 -->
+            <IssuerPublicKeyRemainder>B0 4D A3 9B 98 05 C8 97 01 AE CA ED A7 62 60 F9 05 D5 33 2D 7F 27 94 77 91 B7 26 71 E0 04 6B F3 64 DE 76 A5</IssuerPublicKeyRemainder>
+            <!-- EMU:UNUSED terminal recovers from cert -->
+            <IssuerPublicKeyModulus>C0 48 CC 6E E8 32 88 AB 18 DE 5D 68 87 1A 4E 49 A4 79 2F D2 06 AE D6 E4 21 DA 20 BD 70 47 93 E5 B1 2D E3 E2 25 15 0E CA DC B8 70 91 5C 3D 25 97 3F 49 BB 8A C0 01 96 94 A1 4D 8E FD 84 21 15 CD 63 40 C4 46 05 5E 49 33 3C F2 0A 54 BA BB 3A 57 5C B1 75 6B 44 D6 6B F1 D2 58 0C 6D 8F 7A 41 B2 84 AE 1E 5E 2C 2D 12 C2 DF 8F F0 15 82 05 01 0F F1 0D 83 BE 3D E3 67 6A EE C5 A8 3A 6F 15 62 CF 29 4C 2C CB 85 42 AD 91 88 F6 70 76 B0 4D A3 9B 98 05 C8 97 01 AE CA ED A7 62 60 F9 05 D5 33 2D 7F 27 94 77 91 B7 26 71 E0 04 6B F3 64 DE 76 A5</IssuerPublicKeyModulus>
+            <!-- EMU:UNUSED not on device -->
+            <CAPrivateKey/>
+            <!-- EMU:UNUSED terminal CAPK -->
+            <CAPublicKeyExponent>03</CAPublicKeyExponent>
+            <!-- EMU:USED tag 8F -->
+            <CAPublicKeyIndex>F1</CAPublicKeyIndex>
+            <!-- EMU:UNUSED terminal CAPK -->
+            <CAPublicKeyModulus/>
+            <!-- EMU:USED IMK-AC live cryptogram -->
+            <MasterKeyAC>9E 15 20 43 13 F7 31 8A CB 79 B9 0B D9 86 AD 29</MasterKeyAC>
+            <!-- EMU:UNUSED secure messaging unused -->
+            <MasterKeySMC>CE 29 3B 8C C1 2A 97 73 79 EF 25 6D 76 10 94 92</MasterKeySMC>
+            <!-- EMU:UNUSED secure messaging unused -->
+            <MasterKeySMI>46 64 94 2F E6 15 FB 02 E5 D5 7F 29 2A A2 B3 B6</MasterKeySMI>
+            <!-- EMU:USED 16B IDN/CDA path -->
+            <MasterKeyIDN>94 C5 3B 6B 15 07 7F CB E5 40 7F 43 B5 AB FB 80</MasterKeyIDN>
+            <!-- EMU:UNUSED MSD/CVC3 unused -->
+            <MasterKeyCVC3>01 23 45 67 89 98 76 54 32 10 01 23 45 67 89 98</MasterKeyCVC3>
+            <!-- EMU:UNUSED derived live, not stored -->
+            <SessionKeyAC/>
+            <!-- EMU:UNUSED derived live, not stored -->
+            <SessionKeySMC/>
+            <!-- EMU:UNUSED derived live, not stored -->
+            <SessionKeySMI/>
+            <!-- EMU:UNUSED unused -->
+            <UniqueKeyAC/>
+            <!-- EMU:UNUSED unused -->
+            <UniqueKeySMC/>
+            <!-- EMU:UNUSED unused -->
+            <UniqueKeySMI/>
+        <!-- EMU:USED closes Keys -->
+        </Keys>
+        <!-- EMU:USED FCITemplate / RecordTemplate container -->
+        <RecordTemplates>
+            <!-- EMU:USED builds PPSE or AID FCI from Tag skeleton -->
+            <FCITemplate>
+                <!-- EMU:USED TLV nesting -->
+                <Template TemplateTag ="6F">
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>84</Tag>
+                    <!-- EMU:USED TLV nesting -->
+                    <Template TemplateTag ="A5">
+                        <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                        <Tag>50</Tag>
+                    <!-- EMU:USED closes template -->
+                    </Template>
+                <!-- EMU:USED closes template -->
+                </Template>
+            <!-- EMU:USED builds PPSE or AID FCI from Tag skeleton -->
+            </FCITemplate>
+            <!-- EMU:USED READ RECORD body builder -->
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="01" ShortFileIdentifier="01" VLP="2">
+                <!-- EMU:USED TLV nesting -->
+                <Template TemplateTag ="70">
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>9F 6C</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>9F 62</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>9F 63</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>56</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>9F 64</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>9F 65</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>9F 66</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>9F 6B</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>9F 67</Tag>
+                <!-- EMU:USED closes template -->
+                </Template>
+            <!-- EMU:USED READ RECORD body builder -->
+            </RecordTemplate>
+            <!-- EMU:USED READ RECORD body builder -->
+            <RecordTemplate OfflineDataAuthentication="01" RecordNumber="01" ShortFileIdentifier="02" VLP="2">
+                <!-- EMU:USED TLV nesting -->
+                <Template TemplateTag ="70">
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>57</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>5A</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>5F 20</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>5F 24</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>5F 25</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>5F 28</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>5F 34</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>8C</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>8D</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>8E</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>9F 07</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>9F 08</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>9F 0D</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>9F 0E</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>9F 0F</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>9F 42</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>9F 4A</Tag>
+                <!-- EMU:USED closes template -->
+                </Template>
+            <!-- EMU:USED READ RECORD body builder -->
+            </RecordTemplate>
+            <!-- EMU:USED READ RECORD body builder -->
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="01" ShortFileIdentifier="03" VLP="2">
+                <!-- EMU:USED TLV nesting -->
+                <Template TemplateTag ="70">
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>8F</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>9F 32</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>92</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>90</Tag>
+                <!-- EMU:USED closes template -->
+                </Template>
+            <!-- EMU:USED READ RECORD body builder -->
+            </RecordTemplate>
+            <!-- EMU:USED READ RECORD body builder -->
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="02" ShortFileIdentifier="03" VLP="2">
+                <!-- EMU:USED TLV nesting -->
+                <Template TemplateTag ="70">
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>93</Tag>
+                <!-- EMU:USED closes template -->
+                </Template>
+            <!-- EMU:USED READ RECORD body builder -->
+            </RecordTemplate>
+            <!-- EMU:USED READ RECORD body builder -->
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="01" ShortFileIdentifier="04" VLP="2">
+                <!-- EMU:USED TLV nesting -->
+                <Template TemplateTag ="70">
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>9F 47</Tag>
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>9F 48</Tag>
+                <!-- EMU:USED closes template -->
+                </Template>
+            <!-- EMU:USED READ RECORD body builder -->
+            </RecordTemplate>
+            <!-- EMU:USED READ RECORD body builder -->
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="02" ShortFileIdentifier="04" VLP="2">
+                <!-- EMU:USED TLV nesting -->
+                <Template TemplateTag ="70">
+                    <!-- EMU:USED tag id in TLV build; value from map or empty -->
+                    <Tag>9F 46</Tag>
+                <!-- EMU:USED closes template -->
+                </Template>
+            <!-- EMU:USED READ RECORD body builder -->
+            </RecordTemplate>
+        <!-- EMU:USED FCITemplate / RecordTemplate container -->
+        </RecordTemplates>
+        <!-- EMU:USED named values collected -->
+        <MCHIPApplicationData>
+            <!-- EMU:UNUSED CRM table unused -->
+            <AdditionalCheckTable_MCHIP>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</AdditionalCheckTable_MCHIP>
+            <!-- EMU:USED GPO AIP / CDA bits -->
+            <AIP>19 80</AIP>
+            <!-- EMU:UNUSED unused -->
+            <ApplicationControl>84 00</ApplicationControl>
+            <!-- EMU:USED tag 9F42 -->
+            <ApplicationCurrencyCode>09 78</ApplicationCurrencyCode>
+            <!-- EMU:UNUSED empty/unmapped here -->
+            <ApplicationCurrencyExponent/>
+            <!-- EMU:USED tag 5F25 -->
+            <ApplicationEffectiveDate>04 01 01</ApplicationEffectiveDate>
+            <!-- EMU:USED tag 5F24 -->
+            <ApplicationExpirationDate>30 12 31</ApplicationExpirationDate>
+            <!-- EMU:USED tag 50 / FCI -->
+            <ApplicationLabel>50 50 43 20 4D 43 44 20 30 31 20 20 76 32 30</ApplicationLabel>
+            <!-- EMU:UNUSED not in NAME_TO_TAG -->
+            <ApplicationLifeCycleData>01 10 01 04 00 01 00 00 A1 A2 A3 A4 A5 A6 A7 A8 A9 AA AB AC AD AE AF B0 B1 B2 B3 B4 C1 C2 C3 C4 C5 C6 C7 C8 C9 CA CB CC CD CE CF D0 D1 D2 D3 D4</ApplicationLifeCycleData>
+            <!-- EMU:USED tag 9F07 -->
+            <AUC>FF 00</AUC>
+            <!-- EMU:USED tag 5A -->
+            <ApplicationPAN>54 13 33 00 89 60 00 10</ApplicationPAN>
+            <!-- EMU:USED tag 5F34 -->
+            <ApplicationPANSeqno>01</ApplicationPANSeqno>
+            <!-- EMU:UNUSED empty -->
+            <ApplicationPreferredName/>
+            <!-- EMU:USED tag 87 -->
+            <ApplicationPriorityIndicator>01</ApplicationPriorityIndicator>
+            <!-- EMU:UNUSED empty -->
+            <ApplicationReferenceCurrency/>
+            <!-- EMU:UNUSED empty -->
+            <ApplicationReferenceCurrencyExponent/>
+            <!-- EMU:USED tag 9F08 -->
+            <ApplicationVersionNumber>00 02</ApplicationVersionNumber>
+            <!-- EMU:USED ATC start -->
+            <ATC>00 00</ATC>
+            <!-- EMU:UNUSED wrap policy unused -->
+            <ATC_Limit>FF FF</ATC_Limit>
+            <!-- EMU:UNUSED unmapped -->
+            <BankIdentifierCode/>
+            <!-- EMU:USED tag 5F20 -->
+            <CardHolderName>45 54 45 43 2F 50 41 59 50 41 53 53</CardHolderName>
+            <!-- EMU:UNUSED unmapped -->
+            <CardHolderNameExtended/>
+            <!-- EMU:USED GEN AC CDOL1 -->
+            <CDOL1>9F 02 06 9F 03 06 9F 1A 02 95 05 5F 2A 02 9A 03 9C 01 9F 37 04 9F 35 01 9F 45 02 9F 4C 08 9F 34 03</CDOL1>
+            <!-- EMU:UNUSED hint unused -->
+            <CDOL1RelatedDataLength>2B</CDOL1RelatedDataLength>
+            <!-- EMU:PARTIAL stored; 2nd GEN AC not implemented -->
+            <CDOL2>91 0A 8A 02 95 05 9F 37 04 9F 4C 08</CDOL2>
+            <!-- EMU:UNUSED CRM cryptogram choice unused -->
+            <CIAC_Default>00 00 00</CIAC_Default>
+            <!-- EMU:UNUSED CRM cryptogram choice unused -->
+            <CIAC_Online>FF FF FF</CIAC_Online>
+            <!-- EMU:UNUSED CRM cryptogram choice unused -->
+            <CIAC_Decline>00 00 00</CIAC_Decline>
+            <!-- EMU:UNUSED CRM unused -->
+            <CRMCountryCode>00 56</CRMCountryCode>
+            <!-- EMU:UNUSED CRM unused -->
+            <CRMCurrencyCode>12 34</CRMCurrencyCode>
+            <!-- EMU:PARTIAL inside IAD blob; no separate engine -->
+            <CryptogramVersionNumber>10</CryptogramVersionNumber>
+            <!-- EMU:UNUSED unused -->
+            <CurrencyConversionTable_MCHIP>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</CurrencyConversionTable_MCHIP>
+            <!-- EMU:USED tag 8E -->
+            <CVMList>00 00 00 00 00 00 00 00 42 03 5E 03 1F 03</CVMList>
+            <!-- EMU:META unclassified -->
+            <DDOL/>
+            <!-- EMU:UNUSED no EXTERNAL AUTH -->
+            <DefaultARPCResponseCode>00 12</DefaultARPCResponseCode>
+            <!-- EMU:UNUSED AID from AID element -->
+            <DFName>A0 00 00 00 04 10 10</DFName>
+            <!-- EMU:UNUSED FCI template only uses 50/84 here -->
+            <FCIIssuerDiscretionaryData>61 0C 4F 07 A0 00 00 00 04 10 10 87 01 01</FCIIssuerDiscretionaryData>
+            <!-- EMU:USED tag 9F0D -->
+            <IACDefault>00 00 00 00 00</IACDefault>
+            <!-- EMU:USED tag 9F0E -->
+            <IACDenial>00 00 00 00 00</IACDenial>
+            <!-- EMU:USED tag 9F0F -->
+            <IACOnline>00 00 00 00 00</IACOnline>
+            <!-- EMU:UNUSED generated live -->
+            <ICCDynamicNumber/>
+            <!-- EMU:USED tag 9F10 / GEN AC -->
+            <IssuerApplicationData>01 10 80 00 09 24 04 00 01 02 00 00 00 00 00 00 00 FF</IssuerApplicationData>
+            <!-- EMU:UNUSED empty -->
+            <IssuerCodeTableIndex/>
+            <!-- EMU:USED tag 5F28 -->
+            <IssuerCountryCode>00 56</IssuerCountryCode>
+            <!-- EMU:UNUSED alpha forms unused -->
+            <IssuerCountryCode_Alpha2/>
+            <!-- EMU:UNUSED alpha forms unused -->
+            <IssuerCountryCode_Alpha3/>
+            <!-- EMU:UNUSED unmapped -->
+            <IssuerIdentificationNumber/>
+            <!-- EMU:UNUSED unmapped -->
+            <IssuerProprietaryBitmap/>
+            <!-- EMU:UNUSED empty -->
+            <IssuerURL/>
+            <!-- EMU:PARTIAL often only via IAD bytes -->
+            <KeyDerivationIndex>01</KeyDerivationIndex>
+            <!-- EMU:UNUSED empty, default en -->
+            <LanguagePreference/>
+            <!-- EMU:UNUSED unused -->
+            <LastOnlineATC/>
+            <!-- EMU:UNUSED empty -->
+            <LogEntry/>
+            <!-- EMU:UNUSED tx log unused -->
+            <LogFormat>9F 27 01 9F 02 06 5F 2A 02 9A 03 9F 36 02 9F 52 06</LogFormat>
+            <!-- EMU:UNUSED unused -->
+            <LowerConsecutiveOfflineLimit>00</LowerConsecutiveOfflineLimit>
+            <!-- EMU:UNUSED unused -->
+            <LowerCumulativeOfflineTransactionAmount>00 00 00 00 00 00</LowerCumulativeOfflineTransactionAmount>
+            <!-- EMU:UNUSED log records not implemented -->
+            <MCHIP4_CVRInLogRecord/>
+            <!-- EMU:META unclassified -->
+            <PDOL/>
+            <!-- EMU:PARTIAL stored; no VERIFY -->
+            <PinTryCounter>09</PinTryCounter>
+            <!-- EMU:UNUSED unused -->
+            <PinTryLimit>09</PinTryLimit>
+            <!-- EMU:UNUSED unused -->
+            <PreviousTransactionHistory/>
+            <!-- EMU:UNUSED unused -->
+            <IssuerAuthenticationFlags/>
+            <!-- EMU:UNUSED no VERIFY -->
+            <ReferencePIN>24 43 15 FF FF FF FF FF</ReferencePIN>
+            <!-- EMU:UNUSED unused -->
+            <ScriptCounter>00</ScriptCounter>
+            <!-- EMU:USED tag 9F4A -->
+            <SDATagList>82</SDATagList>
+            <!-- EMU:UNUSED unused -->
+            <SecurityLimitsStatus>00</SecurityLimitsStatus>
+            <!-- EMU:UNUSED empty -->
+            <ServiceCode/>
+            <!-- EMU:UNUSED built live -->
+            <SignedDynamicApplicationData/>
+            <!-- EMU:META Collis attr not read -->
+            <SignedStaticApplicationData Recalculate="00" Text="AF 20 D6 A2 74 0C 40 45 6F 75 F7 AB 59 05 BE 5E A1 7C 88 6A 7E 15 30 F6 AF 95 B8 38 30 35 C9 B9 98 26 A9 2C 8C E8 7A BE 00 B2 81 A4 A4 4D 88 0E 1B 23 E9 2B C3 1C 6A 22 D0 69 F3 1C 59 B9 5D 13 EC 02 E7 E8 0E 37 16 F7 3A D9 6F D1 3E 20 84 91 39 47 ED 4C B9 D4 75 5C 09 84 AF A7 E8 BC 02 56 3C 39 2F 96 1B 23 0B 1A F7 37 F7 B0 50 A6 85 FF 38 FD D0 4E B2 B9 D2 18 51 92 CD FF A4 42 28 67 4B 94 CB 5A 9A 86 44 A9 C9 5E 97 09 EC 06 9A 4E 58 14 21 5D 61 5F EB 39 CD DC 95 D8 0D 69 6F F8 D0 98 5F 72 92 6D 07 8D A8 A2 58 6F 3F 77 47 6D"/>
+            <!-- EMU:UNUSED unused -->
+            <TDOL/>
+            <!-- EMU:UNUSED empty -->
+            <Track1DiscretionaryData/>
+            <!-- EMU:UNUSED empty -->
+            <Track2DiscretionaryData/>
+            <!-- EMU:USED tag 57 -->
+            <Track2EquivalentData>54 13 33 00 89 60 00 10 D3 01 22 01 01 23 40 91 72</Track2EquivalentData>
+            <!-- EMU:UNUSED unused -->
+            <UpperConsecutiveOfflineLimit>FF</UpperConsecutiveOfflineLimit>
+            <!-- EMU:UNUSED unused -->
+            <UpperCumulativeOfflineTransactionAmount>99 99 99 99 99 99</UpperCumulativeOfflineTransactionAmount>
+            <!-- EMU:UNUSED unused -->
+            <ApplicationDiscretionaryData/>
+            <!-- EMU:UNUSED CID live on GEN AC -->
+            <CID>00</CID>
+            <!-- EMU:UNUSED unused -->
+            <CumulativeOfflineTransactionAmount>00 00 00 00 00 00</CumulativeOfflineTransactionAmount>
+            <!-- EMU:UNUSED unused -->
+            <ConsecutiveOfflineTransactionsNumber>00</ConsecutiveOfflineTransactionsNumber>
+            <!-- EMU:UNUSED unused -->
+            <CTRAC>00 00</CTRAC>
+            <!-- EMU:UNUSED unused -->
+            <CTRSMI>00 00</CTRSMI>
+            <!-- EMU:UNUSED unused -->
+            <BadCryptogramCounter>00 00</BadCryptogramCounter>
+            <!-- EMU:UNUSED unused -->
+            <SecurityLimits>FF FF FF FF FF FF</SecurityLimits>
+            <!-- EMU:UNUSED PayPass control unused -->
+            <ApplicationControl_PayPassMChip>00 00 80</ApplicationControl_PayPassMChip>
+            <!-- EMU:UNUSED CRM cryptogram choice unused -->
+            <CIAC_Default_PayPassMChip>00 00 00</CIAC_Default_PayPassMChip>
+            <!-- EMU:UNUSED CRM cryptogram choice unused -->
+            <CIAC_Online_PayPassMChip>FF FF FF</CIAC_Online_PayPassMChip>
+            <!-- EMU:UNUSED CRM cryptogram choice unused -->
+            <CIAC_Decline_PayPassMChip>00 00 00</CIAC_Decline_PayPassMChip>
+            <!-- EMU:UNUSED MSD unused -->
+            <CVC3Track1>77 77</CVC3Track1>
+            <!-- EMU:UNUSED MSD unused -->
+            <CVC3Track2>33 33</CVC3Track2>
+            <!-- EMU:UNUSED MSD unused -->
+            <IVCVC3Track1/>
+            <!-- EMU:UNUSED MSD unused -->
+            <IVCVC3Track2/>
+            <!-- EMU:USED tag 9F08 -->
+            <MagStripeApplicationVersionNumber>00 01</MagStripeApplicationVersionNumber>
+            <!-- EMU:USED tag 8E -->
+            <MagStripeCVMList/>
+            <!-- EMU:UNUSED MSD unused -->
+            <NATCTrack1>03</NATCTrack1>
+            <!-- EMU:UNUSED MSD unused -->
+            <NATCTrack2>03</NATCTrack2>
+            <!-- EMU:UNUSED MSD extras unused -->
+            <PayPass_ThirdPartyData/>
+            <!-- EMU:UNUSED MSD extras unused -->
+            <PayPass_UN/>
+            <!-- EMU:UNUSED MSD unused -->
+            <PCVC3Track1>00 00 00 38 00 00</PCVC3Track1>
+            <!-- EMU:UNUSED MSD unused -->
+            <PCVC3Track2>00 0E</PCVC3Track2>
+            <!-- EMU:UNUSED MSD unused -->
+            <Static_CVC3Track1>77 77</Static_CVC3Track1>
+            <!-- EMU:UNUSED MSD unused -->
+            <Static_CVC3Track2>33 33</Static_CVC3Track2>
+            <!-- EMU:UNUSED MSD unused -->
+            <PUNATCTrack1>00 00 00 00 E0 E0</PUNATCTrack1>
+            <!-- EMU:UNUSED MSD unused -->
+            <PUNATCTrack2>0E 70</PUNATCTrack2>
+            <!-- EMU:UNUSED not in NAME_TO_TAG; SFI1 track tags often empty -->
+            <Track1>42 35 34 31 33 33 33 30 30 38 39 36 30 30 30 31 30 5E 45 54 45 43 2F 50 41 59 50 41 53 53 5E 31 34 31 32 32 30 31 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30</Track1>
+            <!-- EMU:UNUSED unmapped -->
+            <Track1Data>42 35 34 31 33 33 33 30 30 38 39 36 30 30 30 31 30 5E 45 54 45 43 2F 50 41 59 50 41 53 53 5E 31 34 31 32 32 30 31 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30</Track1Data>
+            <!-- EMU:UNUSED use Track2EquivalentData for 57 -->
+            <Track2>54 13 33 00 89 60 00 10 D1 41 22 01 90 00 99 00 00 00 0F</Track2>
+            <!-- EMU:UNUSED unmapped -->
+            <Track2Data>54 13 33 00 89 60 00 10 D1 41 22 01 90 00 99 00 00 00 0F</Track2Data>
+        <!-- EMU:USED named values collected -->
+        </MCHIPApplicationData>
+    <!-- EMU:USED closes app -->
+    </Application>
+<!-- EMU:USED closes root -->
+</CardImage>
