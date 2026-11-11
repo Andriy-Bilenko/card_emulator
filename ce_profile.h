@@ -5,19 +5,20 @@
 
 #define CE_PROF_MAGIC 0x35503654u
 #define CE_PROF_VERSION 5
-#define CE_MAX_AID 16
-#define CE_MAX_FCI 200
-#define CE_MAX_GPO 80
-#define CE_MAX_APPS 4
-#define CE_MAX_SHARED_REC 8
-#define CE_MAX_APP_REC 16
-#define CE_MAX_REC 512
-#define CE_MAX_PAN 10
-#define CE_MAX_CDOL 48
-#define CE_MAX_ICC 192
-#define CE_MAX_IAD 32
-#define CE_MAX_BLOB 8192
-#define CE_MAX_RECORDS_TOTAL 32
+#define CE_MAX_AID 16			 // up to 16 bytes
+#define CE_MAX_FCI 200			 // bytes
+#define CE_MAX_GPO 100			 // bytes
+#define CE_MAX_APPS 5			 // count of apps
+#define CE_MAX_SHARED_REC 8		 // up to 8 PSE “shared” EF records
+#define CE_MAX_APP_REC 16		 // up to 16 EF records per app
+#define CE_MAX_APDU_REC 253		 // max r-APDU size =
+								 // max uint8_t value - 2 bytes (TFI + 0x8E)
+#define CE_MAX_PAN 10			 // 10 bytes, less than 20 digits
+#define CE_MAX_CDOL 64			 // CDOL template max size in bytes
+#define CE_MAX_ICC 256			 // max byte buffer for ICC RSA key material
+#define CE_MAX_IAD 32			 // Issuer Application Data, up to 32 bytes
+#define CE_MAX_BLOB 8192		 // max CeProfile size in bytes
+#define CE_MAX_RECORDS_TOTAL 32	 // total max count of EF records
 
 #define CE_FLAG_HAS_IMK 0x01
 #define CE_FLAG_HAS_LIVE_AC 0x02
@@ -38,7 +39,7 @@ struct CeRecord {
 	uint8_t sfi;
 	uint8_t rec;
 	uint16_t len;
-	uint8_t data[CE_MAX_REC];
+	uint8_t data[CE_MAX_APDU_REC];
 };
 
 // one payment application

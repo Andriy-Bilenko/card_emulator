@@ -69,7 +69,8 @@ static bool takeRecords(const uint8_t** p, size_t* left, CeRecord* recs,
 			!take(p, left, &hi, 1) || !take(p, left, &lo, 1))
 			return false;
 		uint16_t L = (uint16_t)((hi << 8) | lo);
-		if (L > CE_MAX_REC || !take(p, left, recs[i].data, L)) return false;
+		if (L > CE_MAX_APDU_REC || !take(p, left, recs[i].data, L))
+			return false;
 		recs[i].sfi = sfi;
 		recs[i].rec = rec;
 		recs[i].len = L;

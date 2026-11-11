@@ -33,7 +33,7 @@ try:
 except ImportError:
     sys.exit("Need pyserial: pip install pyserial")
 
-from fime_parse import load_profile_bytes, summarize
+from fime_parse import MAX_REC, load_profile_bytes, summarize
 
 HERE = Path(__file__).resolve().parent
 DEFAULT_XML = HERE / "card.xml"
@@ -286,23 +286,17 @@ def cmd_read(port: str, baud: int, xml_path: Path, timeout_s: float) -> int:
     print("--- FIME parse ---", flush=True)
     print(summarize(prof), flush=True)
     print(f"profile_bytes={len(blob)} from {xml_path}", flush=True)
-    # Store headroom 512; PN532 TgSetData still refuses >262 at TX time
+    # load_profile_bytes already enforces ce_profile.h caps (incl. MAX_REC=253)
     max_rec = 0
     for a in prof.apps:
         for r in a.records:
             max_rec = max(max_rec, len(r.data))
     for r in prof.shared_records:
         max_rec = max(max_rec, len(r.data))
-    if max_rec > 512:
+    if max_rec > MAX_REC:
         print(
-            f"PARSE FAIL reason=record len {max_rec} > 512 (APDU_MAX); "
-            "pick a smaller CardImage",
-            flush=True,
-        )
-    elif max_rec > 262:
-        print(
-            f"NOTE: max record {max_rec} > 262 — PN532 PICC TgSetData will fail "
-            "on that READ (need different NFC controller for longer)",
+            f"PARSE FAIL reason=record len {max_rec} > {MAX_REC} "
+            "(CE_MAX_APDU_REC); pick a smaller CardImage",
             flush=True,
         )
         print("STATUS FAIL", flush=True)

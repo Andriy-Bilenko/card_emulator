@@ -207,7 +207,7 @@ static bool buildGenAc(CeApp* a, const uint8_t* cmd, uint8_t cmdLen,
 		out[o++] = 0x81;
 		out[o++] = (uint8_t)n;
 	}
-	if (o + n + 2 > APDU_MAX) return false;
+	if (o + n + 2 > CE_MAX_APDU_REC) return false;
 	memcpy(out + o, body, n);
 	o += n;
 	out[o++] = 0x90;
@@ -230,7 +230,7 @@ static bool handleInternalAuth(CeApp* a, const uint8_t* cmd, uint8_t cmdLen) {
 	if (!dda_sign(a, atc, cmd + 5, lc, sig, &sigLen))
 		return reply(SW_6985, sizeof(SW_6985));
 
-	uint8_t resp[APDU_MAX];
+	uint8_t resp[CE_MAX_APDU_REC];
 	size_t o = 0;
 	resp[o++] = 0x77;
 	size_t inner = 0;
@@ -278,7 +278,7 @@ static bool handleApdu(CeProfile* p, const uint8_t* cmd, uint8_t cmdLen) {
 	uint8_t readRec = 0;
 	const uint8_t* tx = nullptr;
 	size_t txLen = 0;
-	uint8_t localBuf[APDU_MAX];
+	uint8_t localBuf[CE_MAX_APDU_REC];
 	uint8_t localLen = 0;
 
 	if (ins == 0xA4 && p1 == 0x04) {
@@ -555,7 +555,7 @@ bool ceEmulateSession(CeProfile* p) {
 	for (uint16_t i = 0; i < 600; i++) {
 		if (ceModeGet() != CE_MODE_WRITE) break;
 
-		uint8_t cmd[APDU_MAX];
+		uint8_t cmd[CE_MAX_APDU_REC];
 		uint8_t cmdLen = 0;
 		memset(cmd, 0, sizeof(cmd));
 		bool got = nfcGetData(cmd, &cmdLen);

@@ -93,13 +93,15 @@ $PY configurer.py write --port "$PORT"
 ```
 
 # limitations
-Profile/store allows r-APDUs up to 512 B; PN532 PICC TX max is still 262 B (`TgSetData`). Host uses extended frames above ~253. `TgSetMetaData` is DEP-only and cannot ISO-DEP-chain PICC replies past that.
-~~max r-APDU body size is 254 bytes because PN532 caps a single payload at 262 bytes max and chaining is supported only for DEP (not ISO-DEP)~~ Soft ISO-DEP chaining is implemented (`T6_APDU_MAX`); PN532 still caps one INF ~262 B.
-Supports card images of kind‑A only (root `CardImage` + ≥1 `<Application>`), magstripe-only/`EMVCoL3CardImage` are rejected.
-other cardimage-related limits are imposed in code due to memory limitations on ESP32.
+1. Max APDU size is 253 bytes, this is supposed to be enough for all payment cards (I didn't find any cards exceeding it, and terminals drop connections with sythesized cards that exceed it). If anything changes in future then software implementation of ISO-DEP chaining would be needed (earlier proved possible with a test prototype).
+2. Supports card images of kind‑A only (root `CardImage` + ≥1 `<Application>`), magstripe-only/`EMVCoL3CardImage` are rejected.
+3. other cardimage-related limits are imposed in code due to memory limitations on ESP32.
+
+
+
+
 # TODO: explanations about re-signed images
 
-# BY ME TODO figure out 253 or 512 and mention here the limitation
 
 
 If you ran into some issues by any chance or need to contact the developer, it would be great to receive your valuable feedback on email: *bilenko.a.uni@gmail.com*.

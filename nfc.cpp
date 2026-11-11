@@ -3,12 +3,13 @@
 #include <SPI.h>
 #include <string.h>
 
+#include "ce_profile.h"
 #include "log.h"
 
 Adafruit_PN532 nfc(PN532_SS, &SPI);
 static bool gNfcOk = false;
 
-static uint8_t gPrefetch[APDU_MAX];
+static uint8_t gPrefetch[CE_MAX_APDU_REC];
 static uint8_t gPrefetchLen = 0;
 static bool gHavePrefetch = false;
 static bool gAsTargetPendingLog = false;
@@ -120,17 +121,17 @@ bool nfcGetData(uint8_t* cmd, uint8_t* cmdLen) {
 }
 
 bool nfcSetData(const uint8_t* apdu, size_t apduLen) {
-	if (!apdu || apduLen == 0 || apduLen > APDU_MAX) return false;
-	if (apduLen > PN532_SETDATA_MAX) {
-		log("TgSetData too long len=%u max=%u (PN532 PICC)", (unsigned)apduLen,
-			(unsigned)PN532_SETDATA_MAX);
+	if (!apdu || apduLen == 0 || apduLen > CE_MAX_APDU_REC) {
+		if (apduLen > CE_MAX_APDU_REC)
+			log("TgSetData too long len=%u max=%u", (unsigned)apduLen,
+				(unsigned)CE_MAX_APDU_REC);
 		return false;
 	}
 
-	uint8_t frame[1 + PN532_SETDATA_MAX];
+	uint8_t frame[1 + CE_MAX_APDU_REC];
 	frame[0] = 0x8E;
 	memcpy(frame + 1, apdu, apduLen);
-	uint16_t flen = (uint16_t)(apduLen + 1);
+	uint8_t flen = (uint8_t)(apduLen + 1);
 
 	bool ok = false;
 	for (uint8_t t = 0; t < 5; t++) {

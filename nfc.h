@@ -10,9 +10,6 @@
 #define PN532_SS 7
 #define LED_PIN 8
 
-#define APDU_MAX 512
-#define PN532_SETDATA_MAX 262
-
 // BY ME TODO: add comments to all functions, AI fucking removed them all
 void led(bool on);
 bool nfcBegin();
