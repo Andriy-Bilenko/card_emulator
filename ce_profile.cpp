@@ -40,9 +40,9 @@ static bool take(const uint8_t** p, size_t* left, void* dst, size_t n) {
  * @return false if the blob was not taken successfully
  */
 static bool takeBlob(const uint8_t** p, size_t* left, uint8_t* dst,
-					 uint8_t* dstLen, uint8_t maxLen) {
+					 uint8_t* dstLen, size_t maxLen) {
 	uint8_t L = 0;
-	if (!take(p, left, &L, 1) || L > maxLen || !take(p, left, dst, L))
+	if (!take(p, left, &L, 1) || (size_t)L > maxLen || !take(p, left, dst, L))
 		return false;
 	*dstLen = L;
 	return true;
