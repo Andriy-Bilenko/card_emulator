@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+#
+# Copyright (c) 2026 Andrii Bilenko <bilenko.a.uni@gmail.com>.
+# All rights reserved.
+#
+
 """Collis CardImage (Type A / Kind A) → T6P5 binary profile for card emulator PICC player.
 
 Strict: no invented AIP/AFL/IAD/AC. Missing required data → ValueError.

@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+#
+# Copyright (c) 2026 Andrii Bilenko <bilenko.a.uni@gmail.com>.
+# All rights reserved.
+#
+
 """
 card emulator PC tool - Kind-A FIME CardImage → ESP32 T6P5 profile, then write (simulate).
 

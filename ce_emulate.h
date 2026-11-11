@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026 Andrii Bilenko <bilenko.a.uni@gmail.com>.
+ * All rights reserved.
+ */
+
 #pragma once
 #include "ce_profile.h"
 

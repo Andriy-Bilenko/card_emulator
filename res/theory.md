@@ -1,3 +1,8 @@
+<!--
+Copyright (c) 2026 Andrii Bilenko <bilenko.a.uni@gmail.com>.
+All rights reserved.
+-->
+
 # theory
 
 Collis CardImage, FIME images - XML bank card images

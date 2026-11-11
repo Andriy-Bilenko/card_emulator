@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026 Andrii Bilenko <bilenko.a.uni@gmail.com>.
+ * All rights reserved.
+ */
+
 #pragma once
 
 #include <Arduino.h>
@@ -5,13 +10,14 @@
 
 #define CE_PROF_MAGIC 0x35503654u
 #define CE_PROF_VERSION 5
-#define CE_MAX_AID 16			 // up to 16 bytes
-#define CE_MAX_FCI 200			 // bytes
-#define CE_MAX_GPO 100			 // bytes
-#define CE_MAX_APPS 5			 // count of apps
-#define CE_MAX_SHARED_REC 8		 // up to 8 PSE “shared” EF records
-#define CE_MAX_APP_REC 16		 // up to 16 EF records per app
-#define CE_MAX_APDU_REC 253		 // max r-APDU size =
+#define CE_MAX_AID 16		 // up to 16 bytes
+#define CE_MAX_FCI 200		 // bytes
+#define CE_MAX_GPO 100		 // bytes
+#define CE_MAX_APPS 5		 // count of apps
+#define CE_MAX_SHARED_REC 8	 // up to 8 PSE “shared” EF records
+#define CE_MAX_APP_REC 16	 // up to 16 EF records per app
+#define CE_MAX_APDU_REC \
+	253							 // max r-APDU size =
 								 // max uint8_t value - 2 bytes (TFI + 0x8E)
 #define CE_MAX_PAN 10			 // 10 bytes, less than 20 digits
 #define CE_MAX_CDOL 64			 // CDOL template max size in bytes

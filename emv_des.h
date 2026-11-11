@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2026 Andrii Bilenko <bilenko.a.uni@gmail.com>.
+ *
+ * Original implementation and modifications by Andrii Bilenko.
+ * Implementation using publicly specified algorithms.
+ *
+ * All rights reserved, except for third-party components
+ * and material not independently copyrightable.
+ */
+
 #pragma once
 /*
  * Minimal DES / 2-key 3DES (ECB) for card-side AC crypto

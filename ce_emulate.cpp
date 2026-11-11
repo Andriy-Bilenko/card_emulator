@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026 Andrii Bilenko <bilenko.a.uni@gmail.com>.
+ * All rights reserved.
+ */
+
 #include "ce_emulate.h"
 
 // BY ME TODO: comments to static functions, read/understand/cleanup everything
