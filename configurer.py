@@ -101,6 +101,18 @@ def sock_path(port: str) -> str:
     return f"/tmp/test6_{base}.sock"
 
 
+def disable_port_hupcl(fd: int) -> None:
+    """Clear HUPCL so closing the tty does not drop DTR and reboot ESP32-C3."""
+    try:
+        import termios
+
+        attrs = termios.tcgetattr(fd)
+        attrs[2] &= ~termios.HUPCL
+        termios.tcsetattr(fd, termios.TCSANOW, attrs)
+    except Exception:
+        pass
+
+
 def open_serial(port: str, baud: int) -> serial.Serial:
     """Open CDC without toggling DTR/RTS (ESP32-C3 resets on DTR by default)."""
     ser = serial.Serial()
@@ -122,6 +134,7 @@ def open_serial(port: str, baud: int) -> serial.Serial:
         ser.rts = False
     except (AttributeError, serial.SerialException):
         pass
+    disable_port_hupcl(ser.fileno())
     time.sleep(0.4)
     try:
         ser.reset_input_buffer()
@@ -251,8 +264,32 @@ def send_via_socket(port: str, lines: list[str], expect: str, timeout_s: float) 
         return 1
 
 
-def send_direct(port: str, baud: int, lines: list[str], expect: str,
-                timeout_s: float) -> int:
+def pump_serial_until_interrupt(ser: serial.Serial) -> int:
+    print(
+        "LOG holding serial open so MODE WRITE stays armed - Ctrl+C to stop",
+        flush=True,
+    )
+    try:
+        while True:
+            raw = ser.readline()
+            if not raw:
+                continue
+            text = raw.decode("utf-8", "replace").rstrip()
+            if text:
+                print(text, flush=True)
+    except KeyboardInterrupt:
+        print("bye", flush=True)
+        return 0
+
+
+def send_direct(
+    port: str,
+    baud: int,
+    lines: list[str],
+    expect: str,
+    timeout_s: float,
+    hold_open: bool = False,
+) -> int:
     try:
         ser = open_serial(port, baud)
     except serial.SerialException as e:
@@ -260,20 +297,36 @@ def send_direct(port: str, baud: int, lines: list[str], expect: str,
         return 1
     try:
         wait_ready(ser, min(5.0, timeout_s))
-        return send_paced(ser, lines, expect, timeout_s)
+        rc = send_paced(ser, lines, expect, timeout_s)
+        if rc != 0:
+            return rc
+        if hold_open:
+            return pump_serial_until_interrupt(ser)
+        return 0
     finally:
-        ser.close()
+        try:
+            ser.close()
+        except Exception:
+            pass
 
 
 def cmd_mode(port: str, baud: int, mode_line: str, expect: str,
              timeout_s: float) -> int:
     # WRITE prepare can take a few recover probes after a wedged target session.
     timeout_s = max(timeout_s, 30.0)
+    hold = expect == EXPECT_MODE_WRITE
     rc = send_via_socket(port, [mode_line], expect, timeout_s)
     if rc >= 0:
+        if rc == 0 and hold:
+            print(
+                "LOG MODE WRITE via listen - keep listen running while tapping",
+                flush=True,
+            )
         return rc
     print("NOTE: no listen socket - talking to MCU directly", flush=True)
-    return send_direct(port, baud, [mode_line], expect, timeout_s)
+    return send_direct(
+        port, baud, [mode_line], expect, timeout_s, hold_open=hold
+    )
 
 
 def profile_load_lines(blob: bytes) -> list[str]:

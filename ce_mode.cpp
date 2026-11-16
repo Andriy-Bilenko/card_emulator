@@ -309,22 +309,15 @@ void ceModeLoop() {
 		ceModePollSerial();
 		if (gMode != CE_MODE_WRITE) return;
 		/*
-		 * Stay in TgInitAsTarget until Castles REQA (or timeout), then yield
-		 * for serial. Adafruit AsTarget MUST waitready() after ACK or the PICC
-		 * never stays armed (CTOS = endless PENDING).
+		 * One long AsTarget (60s). Short 5s slices re-issue TgInitAsTarget while
+		 * the chip is still armed → AutoColl abort → CTOS PENDING forever.
 		 */
-		uint32_t now = millis();
-		if (now - gWriteWarnMs > 5000) {
-			gWriteWarnMs = now;
-			log("WRITE armed - waiting for reader field (AsTarget)");
-		}
-		if (!nfcAsTarget(5000)) {
+		if (!nfcAsTarget(0)) {
 			ceModePollSerial();
 			return;
 		}
-		log("WRITE activated by reader - starting EMV session");
 		ceEmulateSession(&gProfile);
 		nfcEndTarget();
-		delay(50);
+		delay(100);
 	}
 }

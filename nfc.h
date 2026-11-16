@@ -51,9 +51,7 @@ bool nfcTargetPrepare();
  *
  *
  * Prefetches the first C-APDU via TgGetData when present (skips RATS 0xE0)
- * @param timeoutMs 0 = library default (~30s), else pass-through to AsTarget.
- *        Timeout must cover waitready after ACK (patched Adafruit); without
- *        waitready the PICC never stays armed and POS sees only PENDING.
+ * @param timeoutMs 0 = 60s continuous AutoColl, else pass-through to AsTarget
  * @return true if a reader activated the target
  */
 bool nfcAsTarget(uint16_t timeoutMs = 0);

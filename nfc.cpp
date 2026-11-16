@@ -65,6 +65,7 @@ bool nfcTargetPrepare() {
 	if (gNfcOk) {
 		uint32_t v = nfc.getFirmwareVersion();
 		if (v) {
+			/* Probe only — do not SAMConfig here (breaks CTOS field detect). */
 			log("PN532 antenna ready");
 			return true;
 		}
@@ -82,18 +83,29 @@ bool nfcTargetPrepare() {
 }
 
 bool nfcAsTarget(uint16_t timeoutMs) {
-	if (!gNfcOk) return false;
+	if (!gNfcOk) {
+		log("AsTarget FAIL (pn532 not ok)");
+		return false;
+	}
 	gHavePrefetch = false;
 	gPrefetchLen = 0;
 
-	uint16_t t = timeoutMs ? timeoutMs : 30000;
+	/*
+	 * workingTrx1: AsTarget() default 30s. Keep one continuous arm — no 5s
+	 * re-issue churn. ATQA/frame live in Adafruit AsTarget (0x04,0x00).
+	 */
+	uint16_t t = timeoutMs ? timeoutMs : (uint16_t)30000;
+	led(true);
+	log("AsTarget listening (ATQA 0400) up to %u ms — present NOW",
+		(unsigned)t);
 	bool ok = nfc.AsTarget(t);
+	led(false);
 	if (!ok) {
-		/* Normal when no field yet; heartbeat is in ce_mode WRITE loop. */
+		(void)nfc.SAMConfig();
+		log("AsTarget FAIL (no activation within %u ms)", (unsigned)t);
 		return false;
 	}
 
-	/* Prefetch first C-APDU */
 	uint8_t len = 0;
 	memset(gPrefetch, 0, sizeof(gPrefetch));
 	if (nfc.getDataTarget(gPrefetch, &len, 2000) && len > 0) {
@@ -106,7 +118,6 @@ bool nfcAsTarget(uint16_t timeoutMs) {
 	gAsTargetIns =
 		(gHavePrefetch && gPrefetchLen >= 2) ? gPrefetch[1] : (uint8_t)0;
 	gAsTargetPendingLog = true;
-	/* Log immediately - deferred-only made CTOS sessions look "dead". */
 	log("AsTarget OK, activated prefetch=%u INS=%02X", gAsTargetPrefetch,
 		gAsTargetIns);
 	return true;
@@ -138,12 +149,6 @@ bool nfcSetData(const uint8_t* apdu, size_t apduLen) {
 		return false;
 	}
 
-	/*
-	 * PN532 host frame LEN is uint8 - one TgSetData (0x8E) carries ≤253
-	 * APDU bytes. Only larger R-APDUs (e.g. SFI6/2 = 256) need
-	 * TgSetMetaData (0x94) chaining. Do NOT chain 129..253, that broke
-	 * SFI2/1 (171) with TgSetData FAIL cmd=94 (fail3)
-	 */
 	const size_t kSingleMax = 253;
 	const size_t kChunk = 128;
 	uint8_t frame[1 + 253];
@@ -197,4 +202,18 @@ void nfcEndTarget() {
 	gHavePrefetch = false;
 	gPrefetchLen = 0;
 	nfcLogAsTargetDeferred();
+	/*
+	 * Soft re-arm: probe + SAMConfig. Full nfcBegin() between taps creates a
+	 * dead window where CTOS only sees PENDING.
+	 */
+	uint32_t v = nfc.getFirmwareVersion();
+	if (!v) {
+		gNfcOk = false;
+		if (!nfcRecover("post-session"))
+			log("ERR post-session recover failed");
+		return;
+	}
+	if (!nfc.SAMConfig())
+		log("WARN post-session SAMConfig failed");
+	delay(30);
 }
