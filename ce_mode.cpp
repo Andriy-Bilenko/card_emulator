@@ -297,9 +297,18 @@ void ceModeLoop() {
 		}
 		ceModePollSerial();
 		if (gMode != CE_MODE_WRITE) return;
-		if (!nfcAsTarget(0)) return;
+		/*
+		 * Finite AsTarget wait (not 0/30s): stay in TgInitAsTarget long enough
+		 * for Castles REQA, then yield so MODE/serial can land. Adafruit patch
+		 * must waitready() after ACK or this returns false immediately and the
+		 * PICC never stays armed (CTOS = endless PENDING).
+		 */
+		if (!nfcAsTarget(3000)) {
+			ceModePollSerial();
+			return;
+		}
 		ceEmulateSession(&gProfile);
 		nfcEndTarget();
-		delay(200);
+		delay(50);
 	}
 }

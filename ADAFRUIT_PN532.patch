@@ -216,8 +216,15 @@
    };
 -  if (!sendCommandCheckAck(target, sizeof(target)))
 +  // Default 30s; card_emulator uses short timeouts so MODE flips can land.
++  // sendCommandCheckAck only waits for the PN532 ACK. TgInitAsTarget's real
++  // response (D5 8D) arrives later, when a reader activates us - must waitready
++  // for that or we readdata too early, return false, and re-issue AsTarget every
++  // ~200ms (ce_mode), so the PICC is almost never actually listening → CTOS
++  // stays PENDING forever (plastic works; emu invisible).
 +  if (!sendCommandCheckAck(target, sizeof(target), timeout))
      return false;
++  if (!waitready(timeout ? timeout : 30000))
++    return false;
  
 -  // read data packet
 -  readdata(pn532_packetbuffer, 8);
