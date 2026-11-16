@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CardImage>
+	<FileProperties>
+		<File/>
+		<DateTime>29/06/2012 08.00.00</DateTime>
+		<CreatedBy name="Angelo La Manna" version="1.0.0"/>
+		<Author>Angelo La Manna</Author>            
+	</FileProperties>
+	<CardProperties>
+		<Blocked>0</Blocked>
+		<GuardTime>1</GuardTime>
+		<Protocol>0</Protocol>
+		<Contactless Type="A"/>
+		<ATR>
+			<ColdATR>3B 6F 00 00 80 31 E0 6B 04 20 05 02 3A 55 55 55 55 55 55</ColdATR>
+			<WarmATR>3B 6F 00 00 80 31 E0 6B 04 20 05 02 3A 55 55 55 55 55 55</WarmATR>
+		</ATR>
+	</CardProperties>
+	<PSE/>
+	<PPSE>
+		<DirectoryIdentifier>32 50 41 59 2E 53 59 53 2E 44 44 46 30 31</DirectoryIdentifier>
+		<RecordTemplates>
+			<FCITemplate>
+				<Template TemplateTag ="6F">
+					<Tag>84</Tag>
+					<Template TemplateTag ="A5">
+						<Template TemplateTag ="BF 0C">
+							<Template TemplateTag ="61">
+								<Tag>4F</Tag>
+								<Tag>50</Tag>
+								<Tag>87</Tag>
+                <InjectedData Tag="87" Place="After" Text="9F 2A 01 02"/>
+							</Template>
+						</Template>
+					</Template>
+				</Template>
+			</FCITemplate>
+		</RecordTemplates>
+		<FCI/>
+	</PPSE>
+	<Application Type="MCHIP4 PayPass M/Chip">
+		<Blocked>00</Blocked>
+		<AID>A0 00 00 00 04 10 10</AID>
+		<AFL>08 01 01 00 10 01 01 01 18 01 02 00 20 01 02 00</AFL>
+		<AFLVLP/>
+		<FCI/>
+		<LogRecord Data="" RecordNumber="01" ShortFileIdentifier="0B"/>
+		<Keys Recalculate="00">
+			<IccPrivateKey>1A C2 53 A6 2F FC 28 F2 CA 67 EE 9B 2C BE 16 C2 38 FB E3 C8 8B 28 4A 81 18 44 4B 6A BD 6F 68 FD F4 70 23 62 20 D1 4A 1A 11 6F E4 A8 5C 33 FE 1E 35 CD 9A 3F 48 44 13 64 A3 E9 50 58 ED 26 35 82 D3 6E FA 8E A4 EF EE A2 42 21 C5 4C 02 FB 5D C3 AE 17 97 8B D6 CE 6B 68 A2 4B 3B 13 C8 61 3A 2E 1E 0A 53 1B A1 71 AF 7E 1E FF 44 4B FF 72 50 03 89 F6 64 2F 0F 62 E4 9A 43 0C 6D F7 0C 07 EE 0D</IccPrivateKey>
+			<IccPublicKeyCertificate>02 C9 24 45 80 76 98 EF 7E E4 20 CE 8E F4 CA 03 31 F0 74 41 45 FB 23 DA 2F C0 63 4D F4 73 23 8F D6 D1 94 18 F5 88 F2 C1 2B 21 62 E3 02 37 95 AD 7B 31 C9 02 04 6E FC 8C 1F AB 93 50 49 49 77 ED 14 B6 94 99 1B 03 2B 77 07 E8 85 36 34 2B 79 17 8E 75 04 47 0F E1 64 35 D3 E3 9F 68 CC B3 CD 8D FA 10 75 F5 C9 61 EB 62 E4 A0 EE 6B AC 51 EF A3 28 7E 45 FF F5 98 71 63 FE 92 D3 E3 83 51 6C AB C5 3B 79 64 DC 66 5F 30 9C 4F 27 7A 76 AB 70 85</IccPublicKeyCertificate>
+			<IccPublicKeyExponent>03</IccPublicKeyExponent>
+			<IccPublicKeyRemainder>55 E3 AB 9E 5A 88 10 50 59 BB 80 62 4D 8C 67 23 12 0B 1A 09 1C 88 A5 79 DA C9</IccPublicKeyRemainder>
+			<IccPublicModulus>A0 8D F5 E5 1F E8 F5 B0 BE 6F 97 A3 0C 74 88 8D 55 E7 56 B3 42 F1 BF 06 91 99 C4 80 70 9C 75 F3 BA A0 D4 4C C4 E7 BC 9C 68 9F 5B F2 29 37 F4 B5 42 D1 9D 7B B1 98 74 5B D7 77 E2 15 8E E5 41 12 8A 15 8E 73 6A 88 4B 82 C5 21 61 6E F0 6F 8D 26 7C 07 B1 EF 79 8A B5 77 AA A3 C6 DD 89 37 C9 B2 34 4C EC AD 5A B8 D5 29 BC AC A7 F9 EC EA DE 85 99 0F 1E 04 FE AE 9F A0 33 DF 69 12 68 F9 F2 D5</IccPublicModulus>
+			<IccPINEnciphermentPrivateKey/>
+			<IccPINEnciphermentPublicKeyCertificate/>
+			<IccPINEnciphermentPublicKeyExponent/>
+			<IccPINEnciphermentPublicKeyRemainder/>
+			<IccPINEnciphermentModulus>01 00 01</IccPINEnciphermentModulus>
+			<IssuerPrivateKey/>
+			<IssuerPublicKeyCertificate>57 36 9C AB 66 59 5E EA 60 DC 16 2F 73 A9 77 6A 24 8C B4 88 79 56 69 C9 28 44 AC CB F7 55 0A BA 95 22 6C FC B6 24 62 70 C4 86 D7 52 01 76 99 A6 0A 02 1E 77 00 5C A2 DD F2 7C F4 0F 9E B2 36 C0 CB 82 35 95 F6 98 3C 05 88 82 69 96 88 60 F2 75 B3 F1 53 E0 77 3E 23 F0 E7 57 BD AB 5A 27 0B 9D 30 0F 57 BD 0C 3C 2F 6C C2 52 FC 48 26 3D 3B 3E 68 14 7A 41 AE 59 D1 4D 4F 39 BE 96 3F B5 E2 F0 66 58 65 B8 D2 C2 4F E7 65 4E 42 07 25 01 B8 DE</IssuerPublicKeyCertificate>
+			<IssuerPublicKeyExponent>03</IssuerPublicKeyExponent>
+			<IssuerPublicKeyRemainder>0A 04 95 EF 9D 3B D6 4C 11 4D B5 CD AF 42 D5 4D D8 2B 4D 85 06 BD F9 66 BD B2 12 7C 50 A9 D7 AB 18 7C 08 D5</IssuerPublicKeyRemainder>
+			<IssuerPublicKeyModulus/>
+			<CAPrivateKey/>
+			<CAPublicKeyExponent/>
+			<CAPublicKeyIndex>04</CAPublicKeyIndex>
+			<CAPublicKeyModulus/>
+			<MasterKeyAC>9E 15 20 43 13 F7 31 8A CB 79 B9 0B D9 86 AD 29</MasterKeyAC>
+			<MasterKeySMC>CE 29 3B 8C C1 2A 97 73 79 EF 25 6D 76 10 94 92</MasterKeySMC>
+			<MasterKeySMI>46 64 94 2F E6 15 FB 02 E5 D5 7F 29 2A A2 B3 B6</MasterKeySMI>
+			<MasterKeyIDN>94 C5 3B 6B 15 07 7F CB E5 40 7F 43 B5 AB FB 80</MasterKeyIDN>
+			<MasterKeyCVC3>01 23 45 67 89 98 76 54 32 10 01 23 45 67 89 98</MasterKeyCVC3>
+			<SessionKeyAC/>
+			<SessionKeySMC/>
+			<SessionKeySMI/>
+			<UniqueKeyAC/>
+			<UniqueKeySMC/>
+			<UniqueKeySMI/>
+			<UniqueKeyIDN/>
+		</Keys>
+		<RecordTemplates>
+			<FCITemplate>
+				<Template TemplateTag="6F">
+					<Tag>84</Tag>
+					<Template TemplateTag="A5">
+						<Tag>50</Tag>
+						<Template TemplateTag="BF 0C">
+							<Tag>9F 4D</Tag>
+						</Template>
+					</Template>
+				</Template>
+			</FCITemplate>
+			<RecordTemplate OfflineDataAuthentication="00"
+            RecordNumber="01" ShortFileIdentifier="01" VLP="0">
+				<Template TemplateTag="70">
+					<Tag>9F 6C</Tag>
+				</Template>
+			</RecordTemplate>
+			<RecordTemplate OfflineDataAuthentication="01"
+            RecordNumber="01" ShortFileIdentifier="02" VLP="0">
+				<Template TemplateTag="70">
+					<Tag>57</Tag>
+					<!-- inserted to generate '00' padding in between tags -->
+					<InjectedData Tag="57" Place="After" Text="00 00 00 00 00 00 00"/>
+					<Tag>5A</Tag>
+					<!-- inserted to generate '00' padding in between tags -->
+					<InjectedData Tag="5A" Place="After" Text="00 00"/>
+					<Tag>5F 20</Tag>
+					<!-- inserted to generate '00' padding in between tags -->
+					<InjectedData Tag="5F 20" Place="After" Text="00 00 00 00 00 00 00 00"/>
+					<Tag>5F 24</Tag>
+					<Tag>5F 25</Tag>
+					<Tag>5F 28</Tag>
+					<Tag>5F 34</Tag>
+					<Tag>8C</Tag>
+					<Tag>8D</Tag>
+					<Tag>8E</Tag>
+					<!-- inserted to generate '00' padding in between tags -->
+					<InjectedData Tag="8E" Place="After" Text="00 00"/>
+					<Tag>9F 07</Tag>
+					<Tag>9F 4A</Tag>
+					<Tag>9F 0D</Tag>
+					<Tag>9F 0E</Tag>
+					<Tag>9F 0F</Tag>
+					<Tag>9F 42</Tag>
+				</Template>
+			</RecordTemplate>
+			<RecordTemplate OfflineDataAuthentication="00"
+            RecordNumber="01" ShortFileIdentifier="03" VLP="0">
+				<Template TemplateTag="70">               
+					<Tag>9F 08</Tag>
+					<Tag>8F</Tag>
+					<Tag>9F 32</Tag>
+					<Tag>92</Tag> 
+					<Tag>90</Tag>                             
+				</Template>
+			</RecordTemplate>
+			<RecordTemplate OfflineDataAuthentication="00"
+            RecordNumber="02" ShortFileIdentifier="03" VLP="0">
+				<Template TemplateTag="70">
+					<Tag>93</Tag>
+				</Template>
+			</RecordTemplate>
+			<RecordTemplate OfflineDataAuthentication="00"
+            RecordNumber="01" ShortFileIdentifier="04" VLP="0">
+				<Template TemplateTag="70">
+					<Tag>9F 49</Tag>
+					<Tag>9F 47</Tag>
+					<Tag>9F 48</Tag>              
+				</Template>
+			</RecordTemplate>
+			<RecordTemplate OfflineDataAuthentication="00"
+            RecordNumber="02" ShortFileIdentifier="04" VLP="0">
+				<Template TemplateTag="70">
+					<Tag>9F 46</Tag>
+				</Template>
+			</RecordTemplate>
+		</RecordTemplates>
+		<MCHIPApplicationData>
+			<AdditionalCheckTable_MCHIP>0E 01 02 FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00</AdditionalCheckTable_MCHIP>
+			<AIP>59 80</AIP>
+			<ApplicationControl>08 04</ApplicationControl>
+			<ApplicationCurrencyCode>00 01</ApplicationCurrencyCode>
+			<ApplicationCurrencyExponent/>
+			<ApplicationEffectiveDate>12 01 01</ApplicationEffectiveDate>
+			<ApplicationExpirationDate>21 12 31</ApplicationExpirationDate>
+			<ApplicationLabel>4D 61 73 74 65 72 43 61 72 64</ApplicationLabel>
+			<ApplicationLifeCycleData>01 01 02 01 01 10 01 04 10 00 00 01 A0 00 00 00 04 10 10 00 3C 00 00 00 00 00 00 00 A0 00 00 00 04 05 11 22 11 22 5A 00 61 28 01 11 64 00 00 00</ApplicationLifeCycleData>
+			<AUC>00 00</AUC>
+			<ApplicationPAN>54 13 33 00 89 90 00 48</ApplicationPAN>
+			<ApplicationPANSeqno>00</ApplicationPANSeqno>
+			<ApplicationPreferredName/>
+			<ApplicationPriorityIndicator>01</ApplicationPriorityIndicator>
+			<ApplicationReferenceCurrency/>
+			<ApplicationReferenceCurrencyExponent/>
+			<ApplicationVersionNumber>00 02</ApplicationVersionNumber>
+			<ATC>00 10</ATC>
+			<ATC_Limit>FF FF</ATC_Limit>
+			<BankIdentifierCode/>
+			<CardHolderName>31 31 35 32 20 42 49 54 20 54 45 53 54 20 43 41 52 44</CardHolderName>
+			<CardHolderNameExtended/>
+			<CDOL1>9F 02 06 9F 03 06 9F 1A 02 95 05 5F 2A 02 9A 03 9C 01 9F 37 04 9F 35 01 9F 45 02 9F 4C 08 9F 34 03 9F 1C 08 9F 21 03 9F 01 06</CDOL1>
+			<CDOL1RelatedDataLength>3C</CDOL1RelatedDataLength>
+			<CDOL2>91 0A 8A 02 95 05 9F 37 04 9F 4C 08</CDOL2>
+			<CIAC_Default>7F FF 03</CIAC_Default>
+			<CIAC_Online>7F FF 03</CIAC_Online>
+			<CIAC_Decline>7F FF 03</CIAC_Decline>
+			<CRMCountryCode>00 01</CRMCountryCode>
+			<CRMCurrencyCode>00 01</CRMCurrencyCode>
+			<CryptogramVersionNumber>10</CryptogramVersionNumber>
+			<CurrencyConversionTable_MCHIP>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</CurrencyConversionTable_MCHIP>
+			<CVMList>00 00 00 00 00 00 00 00 00 00</CVMList>
+			<DDOL>9F 37 04</DDOL>
+			<DefaultARPCResponseCode>00 02</DefaultARPCResponseCode>
+			<DFName>A0 00 00 00 04 10 10</DFName>
+			<FCIIssuerDiscretionaryData/>
+			<IACDefault>FF FF FF FF FF</IACDefault>
+			<IACDenial>FF FF FF FF FF</IACDenial>
+			<IACOnline>FF FF FF FF FF</IACOnline>
+			<ICCDynamicNumber>02 09 02 07</ICCDynamicNumber>
+			<IssuerApplicationData/>
+			<IssuerCodeTableIndex/>
+			<IssuerCountryCode>00 01</IssuerCountryCode>
+			<IssuerCountryCode_Alpha2/>
+			<IssuerCountryCode_Alpha3/>
+			<IssuerIdentificationNumber/>
+			<IssuerProprietaryBitmap/>
+			<IssuerURL/>
+			<KeyDerivationIndex>02</KeyDerivationIndex>
+			<LanguagePreference/>
+			<LastOnlineATC/>
+			<LogEntry>0B 64</LogEntry>
+			<LogFormat>9F 27 01 9F 02 06 5F 2A 02 9A 03 9F 36 02 9F 52 06 9F 1A 02 95 05 9C 01 9F 35 01 9F 1C 08 9F 21 03 9F 01 06</LogFormat>
+			<LowerConsecutiveOfflineLimit>00</LowerConsecutiveOfflineLimit>
+			<LowerCumulativeOfflineTransactionAmount>00 00 00 00 00 00</LowerCumulativeOfflineTransactionAmount>
+			<MCHIP4_OfflineBalance>FC CB</MCHIP4_OfflineBalance>
+			<MCHIP4_CVRInLogRecord/>
+			<PDOL/>
+			<PinTryCounter>03</PinTryCounter>
+			<PinTryLimit>03</PinTryLimit>
+			<PreviousTransactionHistory/>
+			<ReferencePIN>24 12 34 FF FF FF FF FF</ReferencePIN>
+			<ScriptCounter>00</ScriptCounter>
+			<SDATagList>82</SDATagList>
+			<SecurityLimitsStatus/>
+			<ServiceCode>02 01</ServiceCode>
+			<SignedDynamicApplicationData/>
+			<SignedStaticApplicationData Recalculate="00" Text="6F 47 AD 4E 0D EB 89 16 19 E1 F8 66 49 D3 6C 89 8E 5C 8E E4 47 FA AB 13 28 AC DB A8 F8 D6 5B F2 61 D8 1E 65 D7 97 AD 4F 20 06 56 7A A5 67 C6 A5 4C 50 E5 C6 42 65 24 87 CF 6D 0F 0F 85 66 BE A0 95 E3 8A 20 BD 7C 53 B1 DF 04 4D C8 55 AF 1F 45 D3 83 82 50 B5 F6 DE 9D 81 94 5A 6B 6F 68 7F 2B 15 BB 7D 49 65 F1 A8 70 AE 1B 84 F6 9F 24 7F 02 62 98 15 D9 6F B0 F4 C3 22 DC 88 77 75 51 62 34 E8 28 7F AB E6 93 25 9F 66 B4 F3 9C 20 F7 ED D5"/>
+			<TDOL/>
+			<PUNATCTrack1>00 00 00 00 E0 E0</PUNATCTrack1>
+			<PUNATCTrack2>0E 70</PUNATCTrack2>
+			<NATCTrack1>03</NATCTrack1>
+			<NATCTrack2>03</NATCTrack2>
+			<CVC3Track1/>
+			<CVC3Track2/>
+			<IVCVC3Track1>BD EF</IVCVC3Track1>
+			<IVCVC3Track2>C0 60</IVCVC3Track2>
+			<UDOL/>
+			<Terminal_ApplicationVersionNumber/>
+			<ApplicationControl_PayPassMChip>00 04 00</ApplicationControl_PayPassMChip>
+			<CIAC_Default_PayPassMChip>7F FF 03</CIAC_Default_PayPassMChip>
+			<CIAC_Decline_PayPassMChip>7F FF 03</CIAC_Decline_PayPassMChip>
+			<CIAC_Online_PayPassMChip>7F FF 03</CIAC_Online_PayPassMChip>
+			<PayPass_UN/>
+			<PayPass_ThirdPartyData/>
+			<Static_CVC3Track1>00 01</Static_CVC3Track1>
+			<Static_CVC3Track2>00 02</Static_CVC3Track2>
+			<PCVC3Track1>00 00 00 38 00 00</PCVC3Track1>
+			<PCVC3Track2>00 0E</PCVC3Track2>
+			<MagStripeApplicationVersionNumber>00 01</MagStripeApplicationVersionNumber>
+			<MagStripeCVMList>00 00 00 00 00 00 00 00 5E 03 42 03 1F 03</MagStripeCVMList>
+			<Track1>42 35 34 31 33 33 33 39 30 30 30 30 30 31 35 31 33 5E 54 45 53 54 43 41 52 44 2F 41 5E 30 37 31 32 32 30 31 33 33 30 30 30 33 33 33 30 30 30 32 32 32 32 32 30 30 30 31 31 31 31 30</Track1>
+			<Track1DiscretionaryData/>
+			<Track2>54 13 33 00 89 90 00 48 D0 11 22 01</Track2>
+			<Track2DiscretionaryData>00 69 90 24 9F</Track2DiscretionaryData>
+			<Track2EquivalentData>54 13 33 00 89 90 00 48 D2 11 22 01</Track2EquivalentData>
+			<UpperConsecutiveOfflineLimit>00</UpperConsecutiveOfflineLimit>
+			<UpperCumulativeOfflineTransactionAmount>000000000000</UpperCumulativeOfflineTransactionAmount>
+			<ApplicationDiscretionaryData/>
+			<CID>00</CID>
+			<CumulativeOfflineTransactionAmount>00 00 00 00 00 00</CumulativeOfflineTransactionAmount>
+			<ConsecutiveOfflineTransactionsNumber>00</ConsecutiveOfflineTransactionsNumber>
+			<CTRAC>00 00</CTRAC>
+			<CTRSMI>00 00</CTRSMI>
+			<BadCryptogramCounter/>
+			<SecurityLimits>FF FF FF FF FF FF</SecurityLimits>
+		</MCHIPApplicationData>
+	</Application>
+</CardImage>

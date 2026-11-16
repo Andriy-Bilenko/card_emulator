@@ -61,8 +61,8 @@ python3 -m venv .venv
 .venv/bin/pip install cryptography pycryptodome
 export TMPDIR=/tmp
 # ENV variables
-export PORT=/dev/ttyACM0   # might differ
 PY=.venv/bin/python
+export PORT=/dev/ttyACM0   # might differ
 ```
 
 ## compile and run
@@ -84,18 +84,24 @@ meanwhile in a second terminal:
 ```bash
 # check xml file image correctness
 $PY configurer.py parse --xml \
-  "card_images/ResignedMasterCardContactlessOldVersionSubset8_PPC_MCD_01_V2.0.xml"
+  "card_images/Oshchadbank_MC_Debit_F1_contactless.xml"
 # put xml image onto device
 $PY configurer.py read --port "$PORT" --xml \
-  "card_images/ResignedMasterCardContactlessOldVersionSubset8_PPC_MCD_01_V2.0.xml"
+  "card_images/Oshchadbank_MC_Debit_F1_contactless.xml"
 # start simulating card image
 $PY configurer.py write --port "$PORT"
 ```
 
 # limitations
-1. Max APDU size is 253 bytes, this is supposed to be enough for all payment cards (I didn't find any cards exceeding it, and terminals drop connections with sythesized cards that exceed it). If anything changes in future then software implementation of ISO-DEP chaining would be needed (earlier proved possible with a test prototype).
-2. Supports card images of kind‑A only (root `CardImage` + ≥1 `<Application>`), magstripe-only/`EMVCoL3CardImage` are rejected.
-3. other cardimage-related limits are imposed in code due to memory limitations on ESP32.
+1. Max APDU size is 256 bytes, this is supposed to be enough for all payment cards (I didn't find 
+any cards exceeding it, and terminals drop connections with sythesized cards that exceed it). If 
+anything changes in future then software implementation of ISO-DEP chaining would be needed 
+(earlier proved possible with a test prototype).
+2. Supports card images of kind‑A only (root `CardImage` + ≥1 `<Application>`), magstripe-only/
+`EMVCoL3CardImage` are rejected.
+3. ISO-14443-3 layer differs from real plastic card (PN532 cannot emulate a 7-byte UID, ATQA must match UID, we have no access to fully edit ATS, it remains PN532-native), fixing it would require different hardware.
+4. obviously ICC private keys differ from real ones, we use tag 8F value `F1` instead of production index `06` (so in order to work CAPK `F1` index must be loaded on payment terminal), shouldn't work if we expect real acquirer network acceptance.
+4. other cardimage-related limits are imposed in code due to memory limitations on ESP32.
 
 
 

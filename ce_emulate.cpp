@@ -3,10 +3,9 @@
  * All rights reserved.
  */
 
-#include "ce_emulate.h"
-
 // BY ME TODO: comments to static functions, read/understand/cleanup everything
-// here
+
+#include "ce_emulate.h"
 
 #include <string.h>
 
@@ -47,6 +46,21 @@ struct CeEvt {
 static CeEvt gEvt[24];
 static uint8_t gEvtN = 0;
 
+/**
+ * @brief Queue one deferred RX/TX/NOTE event (flushed after the RF session)
+ *
+ * @param kind EVT_RX / EVT_TX / EVT_NOTE / …
+ * @param ins  APDU INS
+ * @param p1   APDU P1
+ * @param len  APDU length
+ * @param sw1  status byte 1 (TX)
+ * @param sw2  status byte 2 (TX)
+ * @param ok   1 if TgSetData / handling succeeded
+ * @param note human tag: 1=PPSE 2=AID 3=PSE 4=GPO 5=READ 6=GENAC 7=DDA
+ * 8=omitIAD
+ * @param sfi  READ SFI (optional)
+ * @param rec  READ record number (optional)
+ */
 static void evtPush(uint8_t kind, uint8_t ins, uint8_t p1, uint16_t len,
 					uint8_t sw1, uint8_t sw2, uint8_t ok, uint8_t note,
 					uint8_t sfi = 0, uint8_t rec = 0) {
@@ -64,6 +78,15 @@ static void evtPush(uint8_t kind, uint8_t ins, uint8_t p1, uint16_t len,
 	e->rec = rec;
 }
 
+/**
+ * @brief Parse SELECT-style C-APDU: return Lc and pointer to DATA
+ *
+ * @param cmd    full C-APDU
+ * @param cmdLen length of cmd
+ * @param data   out: points at cmd+5
+ * @param lc     out: cmd[4]
+ * @return false if the frame is shorter than 5+Lc
+ */
 static bool selectData(const uint8_t* cmd, uint8_t cmdLen, const uint8_t** data,
 					   uint8_t* lc) {
 	if (cmdLen < 5) return false;
@@ -73,6 +96,13 @@ static bool selectData(const uint8_t* cmd, uint8_t cmdLen, const uint8_t** data,
 	return true;
 }
 
+/**
+ * @brief Send one R-APDU on the RF path (TgSetData)
+ *
+ * @param apdu response including SW1SW2
+ * @param len  length in bytes
+ * @return true if nfcSetData succeeded
+ */
 static bool reply(const uint8_t* apdu, size_t len) {
 	return nfcSetData(apdu, len);
 }
@@ -91,6 +121,12 @@ uint8_t gTdhDbg[20];
 uint16_t gTdhInLen = 0;
 uint8_t gTdhPdolLen = 0;
 
+/**
+ * @brief Append INS/ok to the compact per-session APDU success log
+ *
+ * @param ins APDU INS byte
+ * @param ok  whether the reply path succeeded
+ */
 static void noteApdu(uint8_t ins, bool ok) {
 	if (gLogN < sizeof(gInsLog)) {
 		gInsLog[gLogN] = ins;
@@ -99,6 +135,17 @@ static void noteApdu(uint8_t ins, bool ok) {
 	}
 }
 
+/**
+ * @brief Look up one EF record by SFI and record number
+ *
+ * @param recs record table (app or shared)
+ * @param n    number of entries in recs
+ * @param sfi  short file identifier
+ * @param rec  record number
+ * @param data out: pointer to record bytes
+ * @param len  out: record length
+ * @return true if found
+ */
 static bool findRecord(const CeRecord* recs, uint8_t n, uint8_t sfi,
 					   uint8_t rec, const uint8_t** data, uint16_t* len) {
 	for (uint8_t i = 0; i < n; i++) {
@@ -111,6 +158,17 @@ static bool findRecord(const CeRecord* recs, uint8_t n, uint8_t sfi,
 	return false;
 }
 
+/**
+ * @brief Append one BER-TLV (1- or 2-byte tag, 1-byte length) at offset o
+ *
+ * @param dst  output buffer
+ * @param cap  capacity of dst
+ * @param o    current write offset
+ * @param tag  tag value (e.g. 0x9F27)
+ * @param val  value bytes
+ * @param vlen value length
+ * @return new offset, or cap+1 on overflow
+ */
 static size_t putTlv(uint8_t* dst, size_t cap, size_t o, uint16_t tag,
 					 const uint8_t* val, uint8_t vlen) {
 	if (tag > 0xFF) {
@@ -126,6 +184,93 @@ static size_t putTlv(uint8_t* dst, size_t cap, size_t o, uint16_t tag,
 	return o + vlen;
 }
 
+/* Oshchad Mastercard CVN16 IAD patterns (18 bytes), from cVend captures. */
+static const uint8_t kIadAac[18] = {
+	0x01, 0x10, 0x80, 0x00, 0x03, 0x24, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF};
+static const uint8_t kIadTc0[18] = {
+	0x01, 0x10, 0x90, 0x40, 0x03, 0x24, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF};
+static const uint8_t kIadTcNz[18] = {
+	0x01, 0x10, 0xA0, 0x40, 0x03, 0x24, 0xC0, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF};
+static const uint8_t kIadArqc[18] = {
+	0x01, 0x10, 0xA0, 0x40, 0x03, 0x24, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF};
+static const uint8_t kIadArqcNoCda[18] = {
+	0x01, 0x10, 0xA0, 0x00, 0x03, 0x24, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF};
+
+/**
+ * @brief Amount Authorized (9F02) from CDOL1-related data; 0 if absent
+ */
+static bool cdol1_amount_nonzero(const CeApp* a, const uint8_t* cdolData,
+								 uint8_t lc) {
+	size_t off = 0;
+	size_t i = 0;
+	while (i < a->cdol1Len) {
+		uint16_t tag = a->cdol1[i++];
+		if ((tag & 0x1F) == 0x1F) {
+			if (i >= a->cdol1Len) break;
+			tag = (uint16_t)((tag << 8) | a->cdol1[i++]);
+		}
+		if (i >= a->cdol1Len) break;
+		uint8_t L = a->cdol1[i++];
+		if (tag == 0x9F02) {
+			if (off + L > lc || L == 0) return false;
+			for (uint8_t k = 0; k < L; k++)
+				if (cdolData[off + k] != 0) return true;
+			return false;
+		}
+		off += L;
+	}
+	/* Fallback: 9F02 is first in Oshchad/Collis CDOL1 */
+	if (lc >= 6) {
+		for (uint8_t k = 0; k < 6; k++)
+			if (cdolData[k] != 0) return true;
+	}
+	return false;
+}
+
+/**
+ * @brief Oshchad CRM: decide CID + IAD from P1 AC type and amount
+ *
+ * AAC → CID 00. TC + amount 0 → CID 40. TC + amount > 0 → CID 80 (forced
+ * online; 9F14/9F23 are 0). ARQC → CID 80. Never OR CDA bit into CID.
+ */
+static void crmOshchad(uint8_t req, bool wantCda, bool amtNz, uint8_t* cid,
+					   const uint8_t** iad, uint8_t* iadLen) {
+	if (req == 0x00) {
+		*cid = 0x00;
+		*iad = kIadAac;
+	} else if (req == 0x40) {
+		if (!amtNz) {
+			*cid = 0x40;
+			*iad = kIadTc0;
+		} else {
+			*cid = 0x80;
+			*iad = kIadTcNz;
+		}
+	} else {
+		*cid = 0x80;
+		*iad = wantCda ? kIadArqc : kIadArqcNoCda;
+	}
+	*iadLen = 18;
+}
+
+/**
+ * @brief Build GENERATE AC R-APDU (live AC, optional CDA 9F4B)
+ *
+ * @param a       selected application (needs IMK / PAN; ICC for CDA)
+ * @param cmd     GENERATE AC C-APDU
+ * @param cmdLen  length of cmd
+ * @param out     R-APDU buffer
+ * @param outLen  out: R-APDU length
+ * @param liveOut out: true if AC was computed live
+ * @param cdaOut  out: true if 9F4B was included
+ * @param atcOut  out: ATC used for this cryptogram
+ * @return false on missing keys / sign failure / overflow
+ */
 static bool buildGenAc(CeApp* a, const uint8_t* cmd, uint8_t cmdLen,
 					   uint8_t* out, uint8_t* outLen, bool* liveOut,
 					   bool* cdaOut, uint16_t* atcOut) {
@@ -153,34 +298,42 @@ static bool buildGenAc(CeApp* a, const uint8_t* cmd, uint8_t cmdLen,
 	 * that sets TVR/reason bits and breaks Kernel 2 CAM on FEIG. CDA is
 	 * indicated by presence of 9F4B, not by CID bit 5. */
 
+	const uint8_t* iadPtr = nullptr;
+	uint8_t iadLen = 0;
+	if (a->flags & CE_FLAG_CRM_OSHCHAD) {
+		bool amtNz = cdol1_amount_nonzero(a, cdolData, (uint8_t)macLen);
+		crmOshchad(req, wantCda, amtNz, &cid, &iadPtr, &iadLen);
+	} else if ((a->flags & CE_FLAG_HAS_IAD) && a->iadLen > 0) {
+		iadPtr = a->iad;
+		iadLen = a->iadLen;
+	}
+
 	uint8_t un4[4];
 	cdol1_un(a, cdolData, (uint8_t)macLen, un4);
 
-	uint8_t prefix[96];
-	size_t po = 0;
+	/*
+	 * Clear GEN-AC TLVs for TDH: 9F27‖9F36[‖9F26]‖9F10 (no 9F4B).
+	 * Wire order when CDA: 9F27‖9F36‖9F4B‖9F10 (Oshchad captures).
+	 */
+	uint8_t clear[96];
+	size_t co = 0;
 	uint8_t atcB[2] = {(uint8_t)(atc >> 8), (uint8_t)(atc & 0xFF)};
 	bool putAc = !wantCda || !(a->flags & CE_FLAG_HAS_ICC);
-	po = putTlv(prefix, sizeof(prefix), po, 0x9F27, &cid, 1);
-	po = putTlv(prefix, sizeof(prefix), po, 0x9F36, atcB, 2);
-	if (putAc) po = putTlv(prefix, sizeof(prefix), po, 0x9F26, ac, 8);
-	if ((a->flags & CE_FLAG_HAS_IAD) && a->iadLen > 0)
-		po = putTlv(prefix, sizeof(prefix), po, 0x9F10, a->iad, a->iadLen);
+	co = putTlv(clear, sizeof(clear), co, 0x9F27, &cid, 1);
+	co = putTlv(clear, sizeof(clear), co, 0x9F36, atcB, 2);
+	if (putAc) co = putTlv(clear, sizeof(clear), co, 0x9F26, ac, 8);
+	if (iadPtr && iadLen)
+		co = putTlv(clear, sizeof(clear), co, 0x9F10, iadPtr, iadLen);
 	else
 		gOmitIad = true;
-	if (po > sizeof(prefix)) return false;
+	if (co > sizeof(clear)) return false;
 
-	/*
-	 * CDA TDH (FEIG libemvco_c2 Step 12): PDOL‖CDOL1‖GEN-AC clear TLVs
-	 * (tags+lens+values), not values-only. With CDA, 9F26 is omitted from the
-	 * R-APDU so prefix is 9F27‖9F36‖9F10. Values-only CID‖ATC‖IAD was wrong
-	 * for this kernel (payload len 64 vs FEIG 73).
-	 */
 	uint8_t cdaSig[CE_MAX_ICC];
 	size_t cdaLen = sizeof(cdaSig);
 	bool haveCda = false;
 	if (wantCda && (a->flags & CE_FLAG_HAS_ICC)) {
 		haveCda = cda_sign(a, cid, atc, ac, un4, gPdol, gPdolLen, cdolData,
-						   macLen, prefix, po, cdaSig, &cdaLen);
+						   macLen, clear, co, cdaSig, &cdaLen);
 		if (!haveCda) return false;
 	} else if (wantCda) {
 		return false;
@@ -188,8 +341,9 @@ static bool buildGenAc(CeApp* a, const uint8_t* cmd, uint8_t cmdLen,
 
 	uint8_t body[240];
 	size_t n = 0;
-	memcpy(body, prefix, po);
-	n = po;
+	n = putTlv(body, sizeof(body), n, 0x9F27, &cid, 1);
+	n = putTlv(body, sizeof(body), n, 0x9F36, atcB, 2);
+	if (putAc) n = putTlv(body, sizeof(body), n, 0x9F26, ac, 8);
 	if (haveCda) {
 		if (n + 4 + cdaLen > sizeof(body)) return false;
 		body[n++] = 0x9F;
@@ -202,6 +356,10 @@ static bool buildGenAc(CeApp* a, const uint8_t* cmd, uint8_t cmdLen,
 		}
 		memcpy(body + n, cdaSig, cdaLen);
 		n += cdaLen;
+	}
+	if (iadPtr && iadLen) {
+		n = putTlv(body, sizeof(body), n, 0x9F10, iadPtr, iadLen);
+		if (n > sizeof(body)) return false;
 	}
 
 	size_t o = 0;
@@ -224,6 +382,14 @@ static bool buildGenAc(CeApp* a, const uint8_t* cmd, uint8_t cmdLen,
 	return true;
 }
 
+/**
+ * @brief Handle INTERNAL AUTHENTICATE (DDA): sign challenge → 9F4B + 9000
+ *
+ * @param a      selected application with ICC key
+ * @param cmd    INTERNAL AUTHENTICATE C-APDU
+ * @param cmdLen length of cmd
+ * @return true if a reply was sent (even error SW)
+ */
 static bool handleInternalAuth(CeApp* a, const uint8_t* cmd, uint8_t cmdLen) {
 	uint8_t lc = cmdLen >= 5 ? cmd[4] : 0;
 	if (!lc || cmdLen < 5 + lc) return reply(SW_6985, sizeof(SW_6985));
@@ -266,6 +432,14 @@ static bool handleInternalAuth(CeApp* a, const uint8_t* cmd, uint8_t cmdLen) {
 	return reply(resp, o);
 }
 
+/**
+ * @brief Dispatch one C-APDU (SELECT / GPO / READ / GET DATA / GEN AC / …)
+ *
+ * @param p      loaded card profile
+ * @param cmd    C-APDU bytes
+ * @param cmdLen length of cmd
+ * @return false only if RF reply failed (caller ends the session)
+ */
 static bool handleApdu(CeProfile* p, const uint8_t* cmd, uint8_t cmdLen) {
 	if (cmdLen < 4) return reply(SW_6D00, sizeof(SW_6D00));
 
@@ -377,10 +551,11 @@ static bool handleApdu(CeProfile* p, const uint8_t* cmd, uint8_t cmdLen) {
 		const uint8_t* rd = nullptr;
 		uint16_t rl = 0;
 		bool found = false;
+		CeApp* a = nullptr;
 		if (p->sel == CE_SEL_PSE)
 			found = findRecord(p->shared, p->numShared, sfi, p1, &rd, &rl);
 		else {
-			CeApp* a = ceProfileCurApp(p);
+			a = ceProfileCurApp(p);
 			if (a)
 				found =
 					findRecord(a->records, a->numRecords, sfi, p1, &rd, &rl);
@@ -392,6 +567,29 @@ static bool handleApdu(CeProfile* p, const uint8_t* cmd, uint8_t cmdLen) {
 			tx = rd;
 			txLen = rl;
 			ok = reply(tx, txLen);
+		} else if (a && (a->flags & CE_FLAG_CRM_OSHCHAD) && sfi == 5 &&
+				   p1 == 4) {
+			/* Plastic SFI5/rec4 → 6985 */
+			tx = SW_6985;
+			txLen = sizeof(SW_6985);
+			ok = reply(tx, txLen);
+		} else if (a && (a->flags & CE_FLAG_CRM_OSHCHAD)) {
+			/* Existing SFI → 6A83; absent SFI → 6A82 */
+			bool sfiExists = false;
+			for (uint8_t i = 0; i < a->numRecords; i++) {
+				if (a->records[i].sfi == sfi) {
+					sfiExists = true;
+					break;
+				}
+			}
+			if (sfiExists) {
+				tx = SW_6A83;
+				txLen = sizeof(SW_6A83);
+			} else {
+				tx = SW_6A82;
+				txLen = sizeof(SW_6A82);
+			}
+			ok = reply(tx, txLen);
 		} else {
 			tx = SW_6A83;
 			txLen = sizeof(SW_6A83);
@@ -400,6 +598,12 @@ static bool handleApdu(CeProfile* p, const uint8_t* cmd, uint8_t cmdLen) {
 	} else if (ins == 0xCA) {
 		CeApp* a = ceProfileCurApp(p);
 		if (!a) {
+			tx = SW_6A88;
+			txLen = sizeof(SW_6A88);
+			ok = reply(tx, txLen);
+		} else if ((a->flags & CE_FLAG_CRM_OSHCHAD) && p1 == 0x9F &&
+				   (p2 == 0x36 || p2 == 0x4D || p2 == 0x13)) {
+			/* Plastic: GET DATA 9F36/9F4D/9F13 → 6A88 (ATC only via GEN AC) */
 			tx = SW_6A88;
 			txLen = sizeof(SW_6A88);
 			ok = reply(tx, txLen);
@@ -419,10 +623,82 @@ static bool handleApdu(CeProfile* p, const uint8_t* cmd, uint8_t cmdLen) {
 			localBuf[0] = 0x9F;
 			localBuf[1] = 0x17;
 			localBuf[2] = 0x01;
-			localBuf[3] = a->pinTry;
+			localBuf[3] = a->pinTry ? a->pinTry : 0x03;
 			localBuf[4] = 0x90;
 			localBuf[5] = 0x00;
 			localLen = 6;
+			tx = localBuf;
+			txLen = localLen;
+			ok = reply(tx, txLen);
+		} else if ((a->flags & CE_FLAG_CRM_OSHCHAD) && p1 == 0x9F &&
+				   p2 == 0x14) {
+			localBuf[0] = 0x9F;
+			localBuf[1] = 0x14;
+			localBuf[2] = 0x01;
+			localBuf[3] = 0x00;
+			localBuf[4] = 0x90;
+			localBuf[5] = 0x00;
+			localLen = 6;
+			tx = localBuf;
+			txLen = localLen;
+			ok = reply(tx, txLen);
+		} else if ((a->flags & CE_FLAG_CRM_OSHCHAD) && p1 == 0x9F &&
+				   p2 == 0x23) {
+			localBuf[0] = 0x9F;
+			localBuf[1] = 0x23;
+			localBuf[2] = 0x01;
+			localBuf[3] = 0x00;
+			localBuf[4] = 0x90;
+			localBuf[5] = 0x00;
+			localLen = 6;
+			tx = localBuf;
+			txLen = localLen;
+			ok = reply(tx, txLen);
+		} else if ((a->flags & CE_FLAG_CRM_OSHCHAD) && p1 == 0x9F &&
+				   p2 == 0x4F) {
+			static const uint8_t kLogFmt[] = {
+				0x9F, 0x27, 0x01, 0x9F, 0x02, 0x06, 0x5F, 0x2A, 0x02, 0x9A,
+				0x03, 0x9F, 0x36, 0x02, 0x9F, 0x52, 0x06, 0xDF, 0x3E, 0x01,
+				0x9F, 0x21, 0x03, 0x9F, 0x7C, 0x14};
+			localBuf[0] = 0x9F;
+			localBuf[1] = 0x4F;
+			localBuf[2] = (uint8_t)sizeof(kLogFmt);
+			memcpy(localBuf + 3, kLogFmt, sizeof(kLogFmt));
+			localLen = (uint8_t)(3 + sizeof(kLogFmt));
+			localBuf[localLen++] = 0x90;
+			localBuf[localLen++] = 0x00;
+			tx = localBuf;
+			txLen = localLen;
+			ok = reply(tx, txLen);
+		} else if ((a->flags & CE_FLAG_CRM_OSHCHAD) && p1 == 0x9F &&
+				   p2 >= 0x70 && p2 <= 0x79) {
+			/* Plastic dump: 9F70..9F79 → 32 zero bytes */
+			localBuf[0] = 0x9F;
+			localBuf[1] = p2;
+			localBuf[2] = 0x20;
+			memset(localBuf + 3, 0, 32);
+			localLen = 35;
+			localBuf[localLen++] = 0x90;
+			localBuf[localLen++] = 0x00;
+			tx = localBuf;
+			txLen = localLen;
+			ok = reply(tx, txLen);
+		} else if ((a->flags & CE_FLAG_CRM_OSHCHAD) && p1 == 0x9F &&
+				   p2 == 0x7E) {
+			/* Plastic GET DATA 9F7E (48 B) from oshchad_full_dump_v1 */
+			static const uint8_t k9f7e[48] = {
+				0x04, 0x10, 0x27, 0x21, 0x00, 0x01, 0x10, 0x00, 0x11, 0x11,
+				0x23, 0x01, 0x4F, 0x57, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x4D, 0x43,
+				0x41, 0x44, 0x44, 0x53, 0x20, 0x32, 0x2E, 0x31, 0x20, 0x54,
+				0x4D, 0x4D, 0x20, 0x37, 0x2E, 0x31, 0x00, 0x00};
+			localBuf[0] = 0x9F;
+			localBuf[1] = 0x7E;
+			localBuf[2] = 0x30;
+			memcpy(localBuf + 3, k9f7e, sizeof(k9f7e));
+			localLen = (uint8_t)(3 + sizeof(k9f7e));
+			localBuf[localLen++] = 0x90;
+			localBuf[localLen++] = 0x00;
 			tx = localBuf;
 			txLen = localLen;
 			ok = reply(tx, txLen);
@@ -495,6 +771,12 @@ static bool handleApdu(CeProfile* p, const uint8_t* cmd, uint8_t cmdLen) {
 	return ok;
 }
 
+/**
+ * @brief Print deferred session events after RF is idle (safe for CDC)
+ *
+ * @param apdus       number of handled APDUs
+ * @param emptyStreak consecutive empty TgGetData polls at session end
+ */
 static void dumpSession(uint16_t apdus, uint8_t emptyStreak) {
 	nfcLogAsTargetDeferred();
 	for (uint8_t i = 0; i < gEvtN; i++) {

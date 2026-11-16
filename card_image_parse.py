@@ -4,12 +4,15 @@
 # All rights reserved.
 #
 
+# BY ME TODO: read, understand/clean up
+
 """Collis CardImage (Type A / Kind A) → T6P5 binary profile for card emulator PICC player.
 
 Strict: no invented AIP/AFL/IAD/AC. Missing required data → ValueError.
 """
 
-# BY ME TODO: rename to card_image_parse.py, read and figure out if this file is even used, understand/clean up
+# Used by configurer.py and scripts/ (resign, catalog, cam_autopsy, …).
+# Caps below must stay in sync with ce_profile.h (CE_MAX_*).
 
 from __future__ import annotations
 
@@ -20,7 +23,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 MAGIC = b"T6P5"
-VERSION = 5
+VERSION = 6
 FLAG_HAS_IMK = 0x01
 FLAG_HAS_LIVE_AC = 0x02
 FLAG_HAS_PSE = 0x04
@@ -32,17 +35,20 @@ FLAG_PPSE_DERIVED = 0x20  # profile-level: PPSE synthesized from apps
 # Wire / firmware caps — must match ce_profile.h (CE_MAX_*)
 MAX_BLOB = 8192
 MAX_APPS = 5
-MAX_RECORDS_TOTAL = 32
+MAX_RECORDS_TOTAL = 86
 MAX_SHARED_REC = 8
-MAX_APP_REC = 16
+MAX_APP_REC = 72  # Oshchad: 6 AFL + blind SFI5/6/11
 MAX_AID = 16
 MAX_FCI = 200
 MAX_GPO = 100
-MAX_REC = 253  # CE_MAX_APDU_REC: Adafruit uint8_t LEN - TFI+0x8E+APDU ≤255
+MAX_REC = 256  # CE_MAX_APDU_REC; >253 sent via TgSetMetaData chaining
 MAX_PAN = 10
-MAX_CDOL = 64
+MAX_CDOL = 128
 MAX_ICC = 256
-MAX_IAD = 32
+MAX_IAD = 48
+
+# App flag: Oshchad-style CRM (CID/IAD from P1+amount) + GET DATA walls
+FLAG_CRM_OSHCHAD = 0x20
 
 NAME_TO_TAG: Dict[str, int] = {
     "AIP": 0x82,
@@ -385,7 +391,9 @@ def build_aid_fci(
 ) -> bytes:
     rt = find_child(app, "RecordTemplates")
     fci_tpl = find_child(rt, "FCITemplate") if rt is not None else None
-    if fci_tpl is not None and any(local(c.tag) == "Template" for c in fci_tpl):
+    if fci_tpl is not None and any(
+        local(c.tag) in ("Template", "InjectedData") for c in fci_tpl
+    ):
         vals = dict(vals)
         vals[0x84] = aid
         vals.setdefault(0x50, label)
@@ -415,7 +423,12 @@ def parse_records(rt: Optional[ET.Element], vals: Dict[int, bytes]) -> List[Reco
         sfi = int(rec_t.attrib.get("ShortFileIdentifier", "0"), 16)
         recn = int(rec_t.attrib.get("RecordNumber", "0"), 16)
         body = build_from_template(rec_t, vals)
-        if not body.startswith(b"\x70"):
+        if not body:
+            continue
+        # Tag/Template skeletons need a 70 wrapper; raw InjectedData (e.g. log
+        # SFI 11 format-1 records starting with 80) is stored byte-exact.
+        has_struct = any(local(c.tag) in ("Tag", "Template") for c in rec_t)
+        if has_struct and not body.startswith(b"\x70"):
             body = tlv(0x70, body)
         out.append(Record(sfi, recn, body + b"\x90\x00"))
     return out
@@ -433,7 +446,9 @@ def parse_ppse_xml(ppse_el: ET.Element, apps: List[AppProfile]) -> bytes:
     # Multi-app: still use first-app values in template tags; directory built from apps if needed
     if rt is not None:
         ft = find_child(rt, "FCITemplate")
-        if ft is not None and any(local(c.tag) == "Template" for c in ft):
+        if ft is not None and any(
+            local(c.tag) in ("Template", "InjectedData") for c in ft
+        ):
             body = build_from_template(ft, vals)
             fci = body if body.startswith(b"\x6F") else tlv(0x6F, body)
             return fci + b"\x90\x00"
@@ -540,6 +555,9 @@ def parse_one_app(app: ET.Element) -> AppProfile:
         flags |= FLAG_HAS_IAD
     if len(mk_idn) == 16:
         flags |= FLAG_HAS_IDN
+    crm = named.get("CRMPolicy", b"")
+    if crm in (b"\x01", b"01") or crm.upper() == b"OSHCHAD":
+        flags |= FLAG_CRM_OSHCHAD
 
     # AIP byte1 (EMV Book 3): b7=0x40 DDA, b1=0x01 CDA - need ICC key material
     aip0 = aip[0] if aip else 0

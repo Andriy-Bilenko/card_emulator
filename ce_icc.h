@@ -6,22 +6,16 @@
 #pragma once
 /**
  * @file ce_icc.h
- * @brief RSA offline dynamic authentication for the emulated chip (ICC)
+ * @brief Live RSA signatures for offline dynamic authentication (DDA / CDA)
  *
- * ce_crypto.h builds the 8-byte Application Cryptogram with DES
- * This file builds the big RSA signature the terminal recovers as tag 9F4B
- * (Signed Dynamic Application Data)
+ *   - SDA (Static Data Authentication): terminal recovers pre-signed SSAD
+ *     (tag 93) with the issuer public key. SSAD is already in the CardImage
+ *     records, so we just READ RECORD it (no live signing)
+ *   - DDA: INTERNAL AUTHENTICATE - sign a block with IDN (tag 9F4B SDAD)
+ *   - CDA: during GENERATE AC - sign IDN | CID | AC | TDH (tag 9F4B SDAD)
  *
- * Two cases:
- *   - DDA: terminal sends INTERNAL AUTHENTICATE with a challenge, we sign
- *     a block that contains an ICC Dynamic Number (IDN)
- *   - CDA: during GENERATE AC we sign a block that contains IDN, CID, AC,
- *     and a Transaction Data Hash (TDH)
- * BY ME TODO: isn't there supposed to be SDA 3rd case? also fix this big file
- * comment
- *
- * Signing format is ISO 9796-2 (header 0x6A, trailer 0xBC, SHA-1 in the
- * middle)
+ * ce_crypto.h builds the 8-byte Application Cryptogram (DES).
+ * ce_icc.h builds RSA SDAD (ISO 9796-2: header 0x6A, trailer 0xBC, SHA-1 mid)
  */
 #include <string.h>
 

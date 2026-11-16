@@ -5,19 +5,19 @@
 #
 
 """
-card emulator PC tool - Kind-A FIME CardImage → ESP32 T6P5 profile, then write (simulate).
+card emulator PC tool - Kind-A CardImage - T6P5 via card_image_parse, then write (simulate)
 
   listen   Own serial; print MCU logs; tee to logs/; serve via Unix socket.
   parse    Dry-run CardImage → T6P5 (no MCU); prints reject reason on fail.
-  read     Parse local FIME XML, upload binary profile to MCU (no plastic).
-  write    Sticky MODE WRITE - MCU emulates loaded FIME profile as PICC.
+  read     Parse local CardImage XML, upload binary profile to MCU
+  write    Sticky MODE WRITE - MCU emulates loaded profile as PICC
   catalog  Build card_images/kind_a_application/ from strict-parse successes.
 
 Examples:
-  tools/.venv/bin/python configurer.py listen --port /dev/ttyACM0
-  tools/.venv/bin/python configurer.py read --port /dev/ttyACM0 \\
+  .venv/bin/python configurer.py listen --port /dev/ttyACM0
+  .venv/bin/python configurer.py read --port /dev/ttyACM0 \\
     --xml card_images/kind_a_application/.../OfflineCAM_04.xml
-  tools/.venv/bin/python configurer.py write --port /dev/ttyACM0
+  .venv/bin/python configurer.py write --port /dev/ttyACM0
 """
 
 # BY ME TODO: read, understand/clean up
@@ -38,7 +38,7 @@ try:
 except ImportError:
     sys.exit("Need pyserial: pip install pyserial")
 
-from fime_parse import MAX_REC, load_profile_bytes, summarize
+from card_image_parse import MAX_REC, load_profile_bytes, summarize
 
 HERE = Path(__file__).resolve().parent
 DEFAULT_XML = HERE / "card.xml"

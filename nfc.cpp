@@ -133,23 +133,58 @@ bool nfcSetData(const uint8_t* apdu, size_t apduLen) {
 		return false;
 	}
 
-	uint8_t frame[1 + CE_MAX_APDU_REC];
-	frame[0] = 0x8E;
-	memcpy(frame + 1, apdu, apduLen);
-	uint8_t flen = (uint8_t)(apduLen + 1);
+	/*
+	 * PN532 host frame LEN is uint8 - one TgSetData (0x8E) carries ≤253
+	 * APDU bytes. Only larger R-APDUs (e.g. SFI6/2 = 256) need
+	 * TgSetMetaData (0x94) chaining. Do NOT chain 129..253, that broke
+	 * SFI2/1 (171) with TgSetData FAIL cmd=94 (fail3)
+	 */
+	const size_t kSingleMax = 253;
+	const size_t kChunk = 128;
+	uint8_t frame[1 + 253];
 
-	bool ok = false;
-	for (uint8_t t = 0; t < 5; t++) {
-		if (nfc.setDataTarget(frame, flen)) {
-			ok = true;
-			break;
+	if (apduLen <= kSingleMax) {
+		frame[0] = 0x8E;
+		memcpy(frame + 1, apdu, apduLen);
+		uint8_t flen = (uint8_t)(apduLen + 1);
+		bool ok = false;
+		for (uint8_t t = 0; t < 5; t++) {
+			if (nfc.setDataTarget(frame, flen)) {
+				ok = true;
+				break;
+			}
 		}
+		if (!ok) {
+			log("TgSetData FAIL len=%u cmd=8E", (unsigned)apduLen);
+			return false;
+		}
+		log("TgSetData ok len=%u", (unsigned)apduLen);
+		return true;
 	}
-	if (!ok) {
-		log("TgSetData FAIL len=%u", (unsigned)apduLen);
-		return false;
+
+	size_t off = 0;
+	while (off < apduLen) {
+		size_t n = apduLen - off;
+		if (n > kChunk) n = kChunk;
+		bool last = (off + n >= apduLen);
+		frame[0] = last ? 0x8E : 0x94;
+		memcpy(frame + 1, apdu + off, n);
+		uint8_t flen = (uint8_t)(n + 1);
+		bool ok = false;
+		for (uint8_t t = 0; t < 5; t++) {
+			if (nfc.setDataTarget(frame, flen)) {
+				ok = true;
+				break;
+			}
+		}
+		if (!ok) {
+			log("TgSetData FAIL len=%u off=%u cmd=%02X", (unsigned)apduLen,
+				(unsigned)off, frame[0]);
+			return false;
+		}
+		off += n;
 	}
-	log("TgSetData ok len=%u", (unsigned)apduLen);
+	log("TgSetData ok len=%u (chained)", (unsigned)apduLen);
 	return true;
 }
 

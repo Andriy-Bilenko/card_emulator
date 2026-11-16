@@ -9,29 +9,30 @@
 #include <stdint.h>
 
 #define CE_PROF_MAGIC 0x35503654u
-#define CE_PROF_VERSION 5
+#define CE_PROF_VERSION 6
 #define CE_MAX_AID 16		 // up to 16 bytes
 #define CE_MAX_FCI 200		 // bytes
 #define CE_MAX_GPO 100		 // bytes
 #define CE_MAX_APPS 5		 // count of apps
 #define CE_MAX_SHARED_REC 8	 // up to 8 PSE “shared” EF records
-#define CE_MAX_APP_REC 16	 // up to 16 EF records per app
+#define CE_MAX_APP_REC 72	 // AFL + blind SFI scan (Oshchad-class dumps)
 #define CE_MAX_APDU_REC \
-	253							 // max r-APDU size =
-								 // max uint8_t value - 2 bytes (TFI + 0x8E)
+	256 /* max R-APDU; >253 uses TgSetMetaData ISO-DEP chaining */
 #define CE_MAX_PAN 10			 // 10 bytes, less than 20 digits
-#define CE_MAX_CDOL 64			 // CDOL template max size in bytes
+#define CE_MAX_CDOL 128			 // CDOL template max size in bytes
 #define CE_MAX_ICC 256			 // max byte buffer for ICC RSA key material
-#define CE_MAX_IAD 32			 // Issuer Application Data, up to 32 bytes
+#define CE_MAX_IAD 48			 // Issuer Application Data, up to X bytes
 #define CE_MAX_BLOB 8192		 // max CeProfile size in bytes
-#define CE_MAX_RECORDS_TOTAL 32	 // total max count of EF records
+#define CE_MAX_RECORDS_TOTAL 86	 // total max count of EF records
 
 #define CE_FLAG_HAS_IMK 0x01
 #define CE_FLAG_HAS_LIVE_AC 0x02
 #define CE_FLAG_HAS_PSE 0x04
 #define CE_FLAG_HAS_ICC 0x08
 #define CE_FLAG_HAS_IAD 0x10
-#define CE_FLAG_PPSE_DERIVED 0x20
+#define CE_FLAG_PPSE_DERIVED 0x20 /* profile-level */
+#define CE_FLAG_CRM_OSHCHAD \
+	0x20 /* app-level, P1+amount CID/IAD + GET DATA walls */
 #define CE_FLAG_HAS_IDN 0x40
 #define CE_FLAG_VALID 0x80
 

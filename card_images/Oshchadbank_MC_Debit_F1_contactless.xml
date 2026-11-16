@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Oshchadbank MC Debit contactless clone for card_emulator.
+  CAPK index F1 = Collis lab key already on the Vibbek cVend test terminal.
+  Issuer RSA key reused from PPC MCD 01; tag 90 re-signed under CAPK F1 with
+  IssID from Oshchad PAN (FEIG §6.3 Step 8). ICC cert uses Collis SAD
+  (SFI2 ODA ‖ AIP). New IMK. Plastic CA index 06 / IssID mismatch both caused
+  DF8115 L2_CAM_FAILED. PN532: 4-byte UID + ATQA 0044 (plastic 7-byte/4400 —
+  cannot advertise double-size UID without 7-byte NFCID). ATS hist matched;
+  T0/TA/TB/TC still PN532. Skipped RF records (APDU > 256):
+  none.
+-->
+<CardImage>
+    <FileProperties>
+        <File>Oshchadbank_MC_Debit_F1_contactless.xml</File>
+        <DateTime>13/11/2026</DateTime>
+        <CreatedBy name="card_emulator build_oshchad_f1_image" version="1.0"/>
+        <Author>Andrii Bilenko</Author>
+    </FileProperties>
+    <CardProperties>
+        <Blocked>0</Blocked>
+        <Contactless Type="A"/>
+    </CardProperties>
+    <!-- No PSE: plastic returns 6A82 for SELECT 1PAY.SYS.DDF01 -->
+    <PPSE>
+        <DirectoryIdentifier>32 50 41 59 2E 53 59 53 2E 44 44 46 30 31</DirectoryIdentifier>
+        <RecordTemplates>
+            <FCITemplate>
+                <InjectedData Place="After" Text="6F 23 84 0E 32 50 41 59 2E 53 59 53 2E 44 44 46 30 31 A5 11 BF 0C 0E 61 0C 4F 07 A0 00 00 00 04 10 10 87 01 01"/>
+            </FCITemplate>
+        </RecordTemplates>
+    </PPSE>
+    <Application Type="MCHIP4 PayPass">
+        <Blocked>00</Blocked>
+        <AID>A0 00 00 00 04 10 10</AID>
+        <AFL>10 01 01 01 18 01 03 00 20 01 02 00</AFL>
+        <Keys Recalculate="00">
+            <IccPrivateKey>83 F2 38 28 69 B1 EB 66 B1 F1 3A 74 C0 F7 D7 80 F3 74 9F BA 36 50 1C CC F4 E9 5C 5F A2 C9 42 80 C2 31 9C 72 C9 2F CB E6 35 15 B3 41 B3 21 F5 62 B2 C8 64 89 B9 3F 1E 88 36 59 79 EF 8D 79 67 93 60 59 17 21 CD E0 C7 E3 16 B1 CC BD D8 D2 7A 3A E0 5E F9 59 B1 7F 4A DF 6A 0C 11 F2 54 1A 4C 11 53 31 A7 0D F7 DD B1 60 18 8E D2 31 EE A8 D7 07 45 F3 93 0B 17 9B 0A 69 10 04 90 77 36 D8 60 B0 6E FE 90 8D 54 1F F9 0B D6 F7 BA 02 98 F9 11 55 73 1C 76 10 C3 B5 21 4A 7C 7F 01 0F 63 E6 FD 7C D5 82 84 48 D1 63 FA D5 55 6E 5B CB 07 6B 1C 3B</IccPrivateKey>
+            <IccPublicKeyCertificate>70 DA 15 09 95 28 1A E1 90 4B 4C 42 80 96 EA 87 5F B8 73 8D 71 85 CD 5E 30 4A 06 05 96 DA 52 C3 9E 94 5F 19 EE C0 D1 F7 90 B4 1E 29 1D 29 05 63 2B C3 41 42 C4 0A 3B D7 A3 1E D3 E1 E5 B5 8B 99 C9 10 07 C1 86 9D 7E E3 D1 FC EA 29 E4 6D 7B B2 42 24 52 AB 84 B3 43 16 8B 85 D2 ED C8 90 7A 58 99 62 EB 46 5C 06 82 1A B1 78 56 99 77 74 5C D8 9E 28 34 60 86 00 9C D7 C3 91 F9 68 C0 34 89 71 AB 0A EE BD 1A 6D 47 DB E0 EC 69 F4 37 DF AA EC 25 5E D3 88 BB CF FC B4 20 75 9A 8B 48 29 73 F9 6D E0 F9 11 A7 1F 4A 6A BF 20 59 42 0E C2 D6 31</IccPublicKeyCertificate>
+            <IccPublicKeyExponent>03</IccPublicKeyExponent>
+            <IccPublicKeyRemainder>F3 29 49 11 59 30 D5 EC 66 4E 93 2F 33 4B EE 9B 37 12 B4 0A 27 35 56 D6 94 CD 71 A0 72 4B 69 73 6B 24 2A 0F 3A 7F 82 5E 1A 63</IccPublicKeyRemainder>
+            <IccPublicModulus>C5 EB 54 3C 9E 8A E1 1A 0A E9 D7 AF 21 73 C3 41 6D 2E EF 97 51 78 2B 33 6F 5E 0A 8F 74 2D E3 C1 23 4A 6A AC 2D C7 B1 D9 4F A0 8C E2 8C B2 F0 14 0C 2C 96 CE 95 DE AD CC 51 86 36 E7 54 36 1B 5D 10 85 A2 B2 B4 D1 2B D4 A2 0A B3 1C C5 3B B7 58 50 8E 76 06 8A 3E F0 50 E1 66 E8 7D 96 ED 7E 70 A0 3C F9 4D A6 E9 1D B2 F3 3D D9 6A 44 9E DE 98 B6 50 D4 8A 99 5C 95 AD B5 3C 56 B8 5D 8A CF 4F 54 21 18 D2 24 B3 F3 29 49 11 59 30 D5 EC 66 4E 93 2F 33 4B EE 9B 37 12 B4 0A 27 35 56 D6 94 CD 71 A0 72 4B 69 73 6B 24 2A 0F 3A 7F 82 5E 1A 63</IccPublicModulus>
+            <IssuerPrivateKey>80 30 88 49 F0 21 B0 72 10 94 3E 45 AF 66 DE DB C2 FB 75 36 AF 1F 39 ED 6B E6 C0 7E 4A DA 62 99 20 C9 42 96 C3 63 5F 31 E8 7A F5 B6 3D 7E 19 0F 7F 86 7D 07 2A AB B9 B8 6B 89 09 FE 58 16 0E 88 EC D5 D8 2E AE 3E DB 77 7D F6 B1 8D D1 D2 26 E4 E8 76 4E 47 83 39 9D 4A B9 9A 78 7A 3D B5 41 E4 B9 58 24 F4 6F 31 FA 80 06 C1 1B 0C A7 64 F2 E8 98 F4 F0 3D 56 E3 73 CB 60 1F A5 21 50 66 0C 00 ED 4B 43 CC EE 79 28 85 D8 5B BA 43 49 1A 28 C8 AB 58 C5 82 C5 1B 22 96 F2 CD 69 CC F1 7A F1 E6 22 9B 15 BA 60 09 85 20 5D E2 37 76 03 8E EE 33</IssuerPrivateKey>
+            <IssuerPublicKeyCertificate>49 CD 20 C3 58 6F D6 11 83 24 23 D0 CF FA D1 88 61 5C 64 4F 4E 44 6C F9 83 BD 9E 56 CD B0 A2 EB 76 20 04 61 BE E9 86 96 EB A7 6C 84 6B 75 C0 6B 65 7E E5 2A F1 AC 7E 26 CC 0B 9D BC 7A E4 0F BC 1E 15 A3 E6 ED 21 D0 89 C1 AA 62 B0 DC E9 D7 92 FB B3 FC 9D 08 E7 76 3D 50 D6 FB 78 09 0C 11 AF 74 5B AA D7 86 4A A1 CB 7D 05 C3 51 92 28 5D 1C F5 19 5E 6C C8 BC A6 D9 70 9C D8 07 15 60 2F EF A5 88 44 D1 A2 FF FE 77 EF B5 13 81 73 11 DF 14 35 1F 61 FC E4 B6 35 D0 D9 DE F0 58 E6 01 FA C2 76 E2 F9 7C 7D 78 4C 07 0B 97 F5 83 06 73 F0 9E</IssuerPublicKeyCertificate>
+            <IssuerPublicKeyExponent>03</IssuerPublicKeyExponent>
+            <IssuerPublicKeyRemainder>B0 4D A3 9B 98 05 C8 97 01 AE CA ED A7 62 60 F9 05 D5 33 2D 7F 27 94 77 91 B7 26 71 E0 04 6B F3 64 DE 76 A5</IssuerPublicKeyRemainder>
+            <IssuerPublicKeyModulus>C0 48 CC 6E E8 32 88 AB 18 DE 5D 68 87 1A 4E 49 A4 79 2F D2 06 AE D6 E4 21 DA 20 BD 70 47 93 E5 B1 2D E3 E2 25 15 0E CA DC B8 70 91 5C 3D 25 97 3F 49 BB 8A C0 01 96 94 A1 4D 8E FD 84 21 15 CD 63 40 C4 46 05 5E 49 33 3C F2 0A 54 BA BB 3A 57 5C B1 75 6B 44 D6 6B F1 D2 58 0C 6D 8F 7A 41 B2 84 AE 1E 5E 2C 2D 12 C2 DF 8F F0 15 82 05 01 0F F1 0D 83 BE 3D E3 67 6A EE C5 A8 3A 6F 15 62 CF 29 4C 2C CB 85 42 AD 91 88 F6 70 76 B0 4D A3 9B 98 05 C8 97 01 AE CA ED A7 62 60 F9 05 D5 33 2D 7F 27 94 77 91 B7 26 71 E0 04 6B F3 64 DE 76 A5</IssuerPublicKeyModulus>
+            <CAPublicKeyIndex>F1</CAPublicKeyIndex>
+            <CAPrivateKey/>
+            <CAPublicKeyModulus/>
+            <MasterKeyAC>78 C5 33 10 93 EA 26 EB 68 A1 04 5A 02 75 4D C5</MasterKeyAC>
+            <MasterKeyIDN>C4 1F 22 AE 3C 13 E0 86 56 D4 93 37 F6 CB 0D 19</MasterKeyIDN>
+            <MasterKeySMC/>
+            <MasterKeySMI/>
+            <MasterKeyCVC3/>
+        </Keys>
+        <RecordTemplates>
+            <FCITemplate>
+                <InjectedData Place="After" Text="6F 3B 84 07 A0 00 00 00 04 10 10 A5 30 50 10 44 45 42 49 54 20 4D 41 53 54 45 52 43 41 52 44 87 01 01 5F 2D 06 75 61 75 6B 65 6E BF 0C 0F 9F 4D 02 0B 0A 9F 6E 07 08 04 00 00 30 30 00"/>
+            </FCITemplate>
+            <RecordTemplate OfflineDataAuthentication="01" RecordNumber="01" ShortFileIdentifier="02">
+                <InjectedData Place="After" Text="70 81 A6 57 13 51 67 80 32 11 62 12 35 D2 71 02 01 00 00 00 00 07 09 0F 5A 08 51 67 80 32 11 62 12 35 5F 24 03 27 10 31 5F 25 03 22 10 01 5F 28 02 08 04 5F 34 01 01 8C 27 9F 02 06 9F 03 06 9F 1A 02 95 05 5F 2A 02 9A 03 9C 01 9F 37 04 9F 35 01 9F 45 02 9F 4C 08 9F 34 03 9F 21 03 9F 7C 14 8D 0C 91 0A 8A 02 95 05 9F 37 04 9F 4C 08 8E 0E 00 00 00 00 00 00 00 00 42 03 1E 03 1F 03 9F 07 02 FF C0 9F 08 02 00 02 9F 0D 05 B4 50 84 00 00 9F 0E 05 00 00 00 00 00 9F 0F 05 B4 70 84 80 00 9F 42 02 09 80 9F 4A 01 82"/>
+            </RecordTemplate>
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="01" ShortFileIdentifier="03">
+                <InjectedData Place="After" Text="70 2D 8F 01 F1 9F 32 01 03 92 24 B0 4D A3 9B 98 05 C8 97 01 AE CA ED A7 62 60 F9 05 D5 33 2D 7F 27 94 77 91 B7 26 71 E0 04 6B F3 64 DE 76 A5"/>
+            </RecordTemplate>
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="02" ShortFileIdentifier="03">
+                <InjectedData Place="After" Text="70 03 93 01 FF"/>
+            </RecordTemplate>
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="03" ShortFileIdentifier="03">
+                <InjectedData Place="After" Text="70 81 B3 90 81 B0 49 CD 20 C3 58 6F D6 11 83 24 23 D0 CF FA D1 88 61 5C 64 4F 4E 44 6C F9 83 BD 9E 56 CD B0 A2 EB 76 20 04 61 BE E9 86 96 EB A7 6C 84 6B 75 C0 6B 65 7E E5 2A F1 AC 7E 26 CC 0B 9D BC 7A E4 0F BC 1E 15 A3 E6 ED 21 D0 89 C1 AA 62 B0 DC E9 D7 92 FB B3 FC 9D 08 E7 76 3D 50 D6 FB 78 09 0C 11 AF 74 5B AA D7 86 4A A1 CB 7D 05 C3 51 92 28 5D 1C F5 19 5E 6C C8 BC A6 D9 70 9C D8 07 15 60 2F EF A5 88 44 D1 A2 FF FE 77 EF B5 13 81 73 11 DF 14 35 1F 61 FC E4 B6 35 D0 D9 DE F0 58 E6 01 FA C2 76 E2 F9 7C 7D 78 4C 07 0B 97 F5 83 06 73 F0 9E"/>
+            </RecordTemplate>
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="01" ShortFileIdentifier="04">
+                <InjectedData Place="After" Text="70 31 9F 47 01 03 9F 48 2A F3 29 49 11 59 30 D5 EC 66 4E 93 2F 33 4B EE 9B 37 12 B4 0A 27 35 56 D6 94 CD 71 A0 72 4B 69 73 6B 24 2A 0F 3A 7F 82 5E 1A 63"/>
+            </RecordTemplate>
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="02" ShortFileIdentifier="04">
+                <InjectedData Place="After" Text="70 81 B4 9F 46 81 B0 70 DA 15 09 95 28 1A E1 90 4B 4C 42 80 96 EA 87 5F B8 73 8D 71 85 CD 5E 30 4A 06 05 96 DA 52 C3 9E 94 5F 19 EE C0 D1 F7 90 B4 1E 29 1D 29 05 63 2B C3 41 42 C4 0A 3B D7 A3 1E D3 E1 E5 B5 8B 99 C9 10 07 C1 86 9D 7E E3 D1 FC EA 29 E4 6D 7B B2 42 24 52 AB 84 B3 43 16 8B 85 D2 ED C8 90 7A 58 99 62 EB 46 5C 06 82 1A B1 78 56 99 77 74 5C D8 9E 28 34 60 86 00 9C D7 C3 91 F9 68 C0 34 89 71 AB 0A EE BD 1A 6D 47 DB E0 EC 69 F4 37 DF AA EC 25 5E D3 88 BB CF FC B4 20 75 9A 8B 48 29 73 F9 6D E0 F9 11 A7 1F 4A 6A BF 20 59 42 0E C2 D6 31"/>
+            </RecordTemplate>
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="01" ShortFileIdentifier="05">
+                <InjectedData Place="After" Text="70 81 92 9F 42 02 09 80 5F 25 03 22 10 01 5F 24 03 27 10 31 5A 08 51 67 80 32 11 62 12 35 5F 34 01 01 9F 07 02 FF C0 8C 27 9F 02 06 9F 03 06 9F 1A 02 95 05 5F 2A 02 9A 03 9C 01 9F 37 04 9F 35 01 9F 45 02 9F 4C 08 9F 34 03 9F 21 03 9F 7C 14 8D 0C 91 0A 8A 02 95 05 9F 37 04 9F 4C 08 8E 14 00 00 00 00 00 00 00 00 42 01 44 03 41 03 1E 03 42 03 1F 03 9F 0D 05 BC 50 BC 00 00 9F 0E 05 00 00 00 00 00 9F 0F 05 BC 70 BC 98 00 5F 28 02 08 04 9F 4A 01 82"/>
+            </RecordTemplate>
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="02" ShortFileIdentifier="05">
+                <InjectedData Place="After" Text="70 03 8F 01 06"/>
+            </RecordTemplate>
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="03" ShortFileIdentifier="05">
+                <InjectedData Place="After" Text="70 81 B4 9F 46 81 B0 60 74 0B B3 1B DC 8E F0 AE 62 43 51 CD B5 D6 36 D6 4E 9D 24 52 CC F1 81 21 D3 23 8B DE 4D 99 36 B4 91 DF 75 F1 A6 3F 2B E4 74 F9 0C CA E2 EB 83 15 ED 38 36 15 A6 46 BC 7B 86 3F D4 8C 9B D1 FE 73 0C 18 21 25 C2 9B 79 67 80 C6 34 CD 75 AE 7C 1D 21 92 24 9B 81 E8 BC E3 BA 52 5F 0B 1F E6 D7 BD 56 03 A6 30 4C 7B 05 C3 04 F5 40 AE FC 90 86 1A AE 2D 93 70 6B 2E F5 0B EF 05 EC AD F8 92 76 76 91 CF 27 D1 EA 44 09 BB 97 A1 C1 7A 87 FB 28 32 6E 56 CC 39 41 39 2C BE 4D A0 1A 71 DD FE E5 5A 9D EB 7B A7 AE 72 E8 07 85 1D C9 0F D1 A9 5E"/>
+            </RecordTemplate>
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="01" ShortFileIdentifier="06">
+                <InjectedData Place="After" Text="70 3B 9F 32 01 03 9F 49 03 9F 37 04 9F 47 01 03 9F 48 2A B6 66 0B 6A 4D CC 7E D0 AC D8 F8 C2 1F 98 77 22 E2 39 B6 3B 72 71 E9 9D 24 F3 87 F6 FC 0F 4E D7 D5 04 29 D8 BB 04 1F C6 92 F1"/>
+            </RecordTemplate>
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="02" ShortFileIdentifier="06">
+                <InjectedData Place="After" Text="70 81 FB 90 81 F8 0E 54 12 34 BA 00 E9 CF C6 2D A6 BF 98 CE 2B 1C AD 89 79 29 F5 71 93 74 30 E6 54 7C 78 69 24 EA 18 E9 55 F0 A3 2A 9B 65 22 B8 B5 2E 04 3C 38 55 4B D1 15 E7 5B D3 C6 D4 CE D0 94 0F 7B 28 DF B6 8F B2 6E 8A FD 27 C6 A8 D6 EF B7 3C A6 74 37 91 8D B3 07 9C 9B BE 9D 87 4C B6 AA 73 A5 88 7F 41 4B 54 65 C9 B9 DA FE 5F B9 06 A6 97 93 56 CC BD 2B 63 DA 85 A3 DF 90 97 9A E2 C6 A2 92 FA 13 EA 04 28 04 9A FA 9B CF 00 A4 03 7C 2C 7E C2 2C 42 F1 7C D6 0B AE CC 5F CB E0 46 59 0C 3C FF A3 5D E5 89 7B 0B 43 51 3B 96 D1 E0 74 90 98 9F 0D B5 7B 78 30 42 DC 28 1E D1 25 8B 94 A0 2F E1 A8 A2 40 DB 2F 44 FD E2 27 88 D3 C2 DC 03 7C 3A B9 72 D2 AF 24 4F 7E 05 10 A7 F5 FA 33 04 36 7F 57 DF 3D B3 2F 0A 52 7B 1A 44 2C D0 78 A1 E0 F5 10 AF 42 DD DD B1 9F E3 FB 35"/>
+            </RecordTemplate>
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="01" ShortFileIdentifier="0B">
+                <InjectedData Place="After" Text="80 00 00 00 01 50 00 07 56 25 01 01 01 9B A0 00 03 A4 00 00 02 23 40 57 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"/>
+            </RecordTemplate>
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="02" ShortFileIdentifier="0B">
+                <InjectedData Place="After" Text="80 00 00 00 01 50 00 07 56 25 01 01 01 98 A0 00 03 A4 00 00 02 23 28 43 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"/>
+            </RecordTemplate>
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="03" ShortFileIdentifier="0B">
+                <InjectedData Place="After" Text="80 00 00 00 01 50 00 07 56 25 01 01 01 8B A0 00 03 A4 00 00 02 23 22 28 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"/>
+            </RecordTemplate>
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="04" ShortFileIdentifier="0B">
+                <InjectedData Place="After" Text="80 00 00 00 00 02 22 07 56 26 11 12 01 85 A0 40 03 A4 C0 00 02 14 33 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"/>
+            </RecordTemplate>
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="05" ShortFileIdentifier="0B">
+                <InjectedData Place="After" Text="80 00 00 00 00 00 22 07 56 26 11 12 01 84 A0 40 03 A4 C0 00 02 13 28 27 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"/>
+            </RecordTemplate>
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="06" ShortFileIdentifier="0B">
+                <InjectedData Place="After" Text="80 00 00 00 00 29 00 07 56 26 11 10 01 83 A0 40 03 A4 00 00 02 17 38 58 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"/>
+            </RecordTemplate>
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="07" ShortFileIdentifier="0B">
+                <InjectedData Place="After" Text="80 00 00 00 00 29 00 07 56 26 11 09 01 82 A0 40 03 A4 00 00 02 19 27 22 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"/>
+            </RecordTemplate>
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="08" ShortFileIdentifier="0B">
+                <InjectedData Place="After" Text="80 00 00 00 00 29 00 07 56 26 11 09 01 81 A0 40 03 A4 00 00 02 18 35 47 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"/>
+            </RecordTemplate>
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="09" ShortFileIdentifier="0B">
+                <InjectedData Place="After" Text="80 00 00 00 00 05 55 07 56 26 11 09 01 80 A0 40 03 24 C0 00 02 18 35 29 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"/>
+            </RecordTemplate>
+            <RecordTemplate OfflineDataAuthentication="00" RecordNumber="0A" ShortFileIdentifier="0B">
+                <InjectedData Place="After" Text="40 00 00 00 00 29 00 07 56 26 11 05 01 7E 67 60 03 04 00 00 01 19 07 59 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"/>
+            </RecordTemplate>
+        </RecordTemplates>
+        <MCHIPApplicationData>
+            <AIP>19 80</AIP>
+            <ApplicationCurrencyCode>09 80</ApplicationCurrencyCode>
+            <ApplicationEffectiveDate>22 10 01</ApplicationEffectiveDate>
+            <ApplicationExpirationDate>27 10 31</ApplicationExpirationDate>
+            <ApplicationLabel>44 45 42 49 54 20 4D 41 53 54 45 52 43 41 52 44</ApplicationLabel>
+            <AUC>FF C0</AUC>
+            <ApplicationPAN>51 67 80 32 11 62 12 35</ApplicationPAN>
+            <ApplicationPANSeqno>01</ApplicationPANSeqno>
+            <ApplicationPriorityIndicator>01</ApplicationPriorityIndicator>
+            <ApplicationVersionNumber>00 02</ApplicationVersionNumber>
+            <ATC>00 01</ATC>
+            <CDOL1>9F 02 06 9F 03 06 9F 1A 02 95 05 5F 2A 02 9A 03 9C 01 9F 37 04 9F 35 01 9F 45 02 9F 4C 08 9F 34 03 9F 21 03 9F 7C 14</CDOL1>
+            <CDOL2>91 0A 8A 02 95 05 9F 37 04 9F 4C 08</CDOL2>
+            <!-- CRMPolicy 01 - hardcoded Oshchad Card Risk Management policy in card_emulator -->
+            <CRMPolicy>01</CRMPolicy>
+            <CVMList>00 00 00 00 00 00 00 00 42 03 1E 03 1F 03</CVMList>
+            <IACDefault>B4 50 84 00 00</IACDefault>
+            <IACDenial>00 00 00 00 00</IACDenial>
+            <IACOnline>B4 70 84 80 00</IACOnline>
+            <IssuerApplicationData>01 10 A0 40 03 24 00 00 00 00 00 00 00 00 00 00 00 FF</IssuerApplicationData>
+            <IssuerCountryCode>08 04</IssuerCountryCode>
+            <LanguagePreference>75 61 75 6B 65 6E</LanguagePreference>
+            <PINTryCounter>03</PINTryCounter>
+            <SDATagList>82</SDATagList>
+            <Track2EquivalentData>51 67 80 32 11 62 12 35 D2 71 02 01 00 00 00 00 07 09 0F</Track2EquivalentData>
+            <LowerOfflineConsecutiveLimit>00</LowerOfflineConsecutiveLimit>
+            <UpperOfflineConsecutiveLimit>00</UpperOfflineConsecutiveLimit>
+        </MCHIPApplicationData>
+    </Application>
+</CardImage>
