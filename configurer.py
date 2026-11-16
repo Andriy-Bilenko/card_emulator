@@ -102,13 +102,26 @@ def sock_path(port: str) -> str:
 
 
 def open_serial(port: str, baud: int) -> serial.Serial:
+    """Open CDC without toggling DTR/RTS (ESP32-C3 resets on DTR by default)."""
     ser = serial.Serial()
     ser.port = port
     ser.baudrate = baud
     ser.timeout = 0.25
     ser.dsrdtr = False
     ser.rtscts = False
+    # Must set before open - otherwise Linux ACM open pulses DTR → MCU reboot
+    # → drops MODE WRITE → CTOS sees only PENDING.
+    try:
+        ser.dtr = False
+        ser.rts = False
+    except (AttributeError, serial.SerialException):
+        pass
     ser.open()
+    try:
+        ser.dtr = False
+        ser.rts = False
+    except (AttributeError, serial.SerialException):
+        pass
     time.sleep(0.4)
     try:
         ser.reset_input_buffer()
@@ -376,9 +389,12 @@ def cmd_listen(port: str, baud: int, log_file: Path | None) -> int:
         queue = []
         waiting_ack = None
 
+    # Sticky: after USB blip / MCU reboot, re-arm WRITE if we had armed it.
+    want_write = False
+
     def reconnect_serial() -> None:
         """Close dead CDC handle and wait until port opens again. One log line."""
-        nonlocal ser
+        nonlocal ser, want_write
         fail_pending(b"STATUS FAIL serial reconnect\n")
         try:
             ser.close()
@@ -390,6 +406,29 @@ def cmd_listen(port: str, baud: int, log_file: Path | None) -> int:
             try:
                 ser = open_serial(port, baud)
                 tee.write("LOG serial reconnected")
+                # Drain boot banner; firmware auto-arms WRITE if profile exists,
+                # but still re-send MODE WRITE so we never sit in IDLE.
+                boot_deadline = time.time() + 3.0
+                saw_write = False
+                while time.time() < boot_deadline:
+                    line = ser.readline()
+                    if not line:
+                        continue
+                    text = line.decode("utf-8", "replace").rstrip()
+                    if text:
+                        tee.write(text)
+                    low = text.lower()
+                    if "mode=write" in low:
+                        saw_write = True
+                    if "card emulator boot" in low:
+                        want_write = True
+                if want_write and not saw_write:
+                    tee.write("LOG re-arm MODE WRITE after reconnect")
+                    try:
+                        ser.write(b"MODE WRITE\n")
+                        ser.flush()
+                    except serial.SerialException:
+                        continue
                 return
             except (serial.SerialException, OSError):
                 continue
@@ -467,8 +506,10 @@ def cmd_listen(port: str, baud: int, log_file: Path | None) -> int:
                 last = cmds[-1].upper()
                 if last == "MODE WRITE":
                     pending_expect = EXPECT_MODE_WRITE
+                    want_write = True
                 elif last == "MODE READ" and len(cmds) == 1:
                     pending_expect = EXPECT_MODE_READ
+                    want_write = False
                 else:
                     pending_expect = EXPECT_PROFILE
                 queue = cmds
@@ -490,6 +531,13 @@ def cmd_listen(port: str, baud: int, log_file: Path | None) -> int:
                     continue
                 tee.write(text)
                 low = text.lower()
+                if "mode=write" in low:
+                    want_write = True
+                if "mode=read" in low or "mode=idle" in low:
+                    if "mode=write" not in low:
+                        # idle after boot before auto-write is fine; only clear on READ
+                        if "mode=read" in low:
+                            want_write = False
 
                 if waiting_ack is not None:
                     if line_failed(text):

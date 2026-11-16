@@ -86,8 +86,12 @@ bool nfcAsTarget(uint16_t timeoutMs) {
 	gHavePrefetch = false;
 	gPrefetchLen = 0;
 
-	bool ok = timeoutMs ? nfc.AsTarget(timeoutMs) : nfc.AsTarget();
-	if (!ok) return false;
+	uint16_t t = timeoutMs ? timeoutMs : 30000;
+	bool ok = nfc.AsTarget(t);
+	if (!ok) {
+		/* Normal when no field yet; heartbeat is in ce_mode WRITE loop. */
+		return false;
+	}
 
 	/* Prefetch first C-APDU */
 	uint8_t len = 0;
@@ -102,6 +106,7 @@ bool nfcAsTarget(uint16_t timeoutMs) {
 	gAsTargetIns =
 		(gHavePrefetch && gPrefetchLen >= 2) ? gPrefetch[1] : (uint8_t)0;
 	gAsTargetPendingLog = true;
+	/* Log immediately - deferred-only made CTOS sessions look "dead". */
 	log("AsTarget OK, activated prefetch=%u INS=%02X", gAsTargetPrefetch,
 		gAsTargetIns);
 	return true;

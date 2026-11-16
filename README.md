@@ -100,9 +100,10 @@ anything changes in future then software implementation of ISO-DEP chaining woul
 2. Supports card images of kind‑A only (root `CardImage` + ≥1 `<Application>`), magstripe-only/
 `EMVCoL3CardImage` are rejected.
 3. ISO-14443-3 layer differs from real plastic card (PN532 cannot emulate a 7-byte UID, ATQA must match UID, we have no access to fully edit ATS, it remains PN532-native), fixing it would require different hardware.
-4. **Adafruit patch is mandatory for CTOS/Castles visibility:** `AsTarget` must `waitready(timeout)` after the PN532 ACK before `readdata`. Without that, `TgInitAsTarget` never stays armed, the terminal only logs `PENDING`, and there is no beep. Re-apply `ADAFRUIT_PN532.patch` after any library reinstall, then rebuild/flash.
-5. obviously ICC private keys differ from real ones, we use tag 8F value `F1` instead of production index `06` (so in order to work CAPK `F1` index must be loaded on payment terminal), shouldn't work if we expect real acquirer network acceptance.
-6. other cardimage-related limits are imposed in code due to memory limitations on ESP32.
+4. **Adafruit patch is mandatory for CTOS/Castles visibility:** `AsTarget` must `waitready(timeout)` after the PN532 ACK before `readdata`, and TgInitAsTarget mode must be `0x05` (Passive+PICC). Without that, CTOS only logs `PENDING`. Re-apply `ADAFRUIT_PN532.patch` on a **clean** Adafruit 1.3.4 tree, then rebuild/flash the sketch.
+5. **USB serial reopen resets ESP32-C3** unless DTR is held low. Firmware auto-arms `MODE WRITE` after reboot if a profile is saved; keep `configurer.py listen` running and look for `WRITE armed - waiting for reader field` every ~5s while presenting to CTOS.
+6. obviously ICC private keys differ from real ones, we use tag 8F value `F1` instead of production index `06` (so in order to work CAPK `F1` index must be loaded on payment terminal), shouldn't work if we expect real acquirer network acceptance.
+7. other cardimage-related limits are imposed in code due to memory limitations on ESP32.
 
 
 

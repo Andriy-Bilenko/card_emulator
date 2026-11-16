@@ -26,11 +26,20 @@ static bool gLoading = false;
 
 void ceModeInit() {
 	gMode = CE_MODE_IDLE;
-	if (ceProfileLoad(&gProfile))
+	if (ceProfileLoad(&gProfile) && ceProfileIsValid(&gProfile)) {
 		log("STATE mode=IDLE profile=loaded");
-	else
+		/*
+		 * USB CDC open/reconnect often resets ESP32-C3. After that we were
+		 * stuck in IDLE while CTOS kept PENDING. Auto-arm WRITE whenever a
+		 * valid profile is already on SPIFFS so the PICC comes back without
+		 * another configurer write.
+		 */
+		ceModeSet(CE_MODE_WRITE);
+		log("ready");
+	} else {
 		log("STATE mode=IDLE profile=empty");
-	log("ready");
+		log("ready");
+	}
 }
 
 CeMode ceModeGet() { return gMode; }
@@ -54,8 +63,10 @@ void ceModeSet(CeMode m) {
 		log("STATE mode=WRITE - emulate FIME profile");
 		if (!ceProfileIsValid(&gProfile))
 			log("WARN no profile - run configurer.py read first");
-		else
+		else {
 			ceProfileLogSummary(&gProfile);
+			log("WRITE armed - waiting for reader field (AsTarget)");
+		}
 	} else {
 		log("STATE mode=IDLE");
 	}
@@ -298,15 +309,20 @@ void ceModeLoop() {
 		ceModePollSerial();
 		if (gMode != CE_MODE_WRITE) return;
 		/*
-		 * Finite AsTarget wait (not 0/30s): stay in TgInitAsTarget long enough
-		 * for Castles REQA, then yield so MODE/serial can land. Adafruit patch
-		 * must waitready() after ACK or this returns false immediately and the
-		 * PICC never stays armed (CTOS = endless PENDING).
+		 * Stay in TgInitAsTarget until Castles REQA (or timeout), then yield
+		 * for serial. Adafruit AsTarget MUST waitready() after ACK or the PICC
+		 * never stays armed (CTOS = endless PENDING).
 		 */
-		if (!nfcAsTarget(3000)) {
+		uint32_t now = millis();
+		if (now - gWriteWarnMs > 5000) {
+			gWriteWarnMs = now;
+			log("WRITE armed - waiting for reader field (AsTarget)");
+		}
+		if (!nfcAsTarget(5000)) {
 			ceModePollSerial();
 			return;
 		}
+		log("WRITE activated by reader - starting EMV session");
 		ceEmulateSession(&gProfile);
 		nfcEndTarget();
 		delay(50);
